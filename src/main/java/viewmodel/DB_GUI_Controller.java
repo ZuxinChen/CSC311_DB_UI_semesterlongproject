@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Person;
@@ -29,6 +30,9 @@ import java.util.ResourceBundle;
 
 public class DB_GUI_Controller implements Initializable {
 
+    public Button deleteBtn;
+    public Button editBtn;
+    public Button addBtn;
     @FXML
     TextField first_name, last_name, department, major, email, imageURL;
     @FXML
@@ -43,7 +47,10 @@ public class DB_GUI_Controller implements Initializable {
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
-
+    private String nameRegex = "[A-Za-z]{2,25}";
+    private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private String departmentRegex = ".{1,20}";
+    private String majorRegex = ".{1,20}";
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -54,21 +61,108 @@ public class DB_GUI_Controller implements Initializable {
             tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
             tv.setItems(data);
+            // Add mouse click event handler to the table view
+            tv.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    editSelectedRecord();
+                }
+            });
+
+            // Disable the "Delete" button initially
+            deleteBtn.setDisable(true);
+            editBtn.setDisable(true);
+
+            addBtn.setDisable(true);
+            addValidationListener(first_name, nameRegex);
+            addValidationListener(last_name, nameRegex);
+            addValidationListener(email, emailRegex);
+            addValidationListener(department, departmentRegex);
+            addValidationListener(major, majorRegex);
+
+            // Add a listener to enable/disable the "Delete" button based on row selection
+            tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                deleteBtn.setDisable(newSelection == null);
+                editBtn.setDisable(newSelection == null);
+            });
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+
+    private void editSelectedRecord() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+
+        if (selectedPerson != null) {
+            // Populate the form with the selected person's data for editing
+            first_name.setText(selectedPerson.getFirstName());
+            last_name.setText(selectedPerson.getLastName());
+            department.setText(selectedPerson.getDepartment());
+            major.setText(selectedPerson.getMajor());
+            email.setText(selectedPerson.getEmail());
+            imageURL.setText(selectedPerson.getImageURL());
+        }
+    }
+    private void validateInput(TextArea textField, String regex, Text validationText) {
+        if (!textField.getText().matches(regex)) {
+            textField.setStyle("-fx-border-color: red;");
+            validationText.setText("Invalid input");
+            addBtn.setDisable(true);
+        } else {
+            textField.setStyle("");
+            validationText.setText("Valid"); // Clear validation message
+            addBtn.setDisable(!areAllFieldsValid());
+        }
+    }
+    private void addValidationListener(TextArea textField, String regex, Text validationText) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateInput(textField, regex, validationText);
+        });
+    }
+    private void addValidationListener(TextField textField, String regex) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> {
+            validateInput(textField, regex);
+        });
+    }
+    private void validateInput(TextField textField, String regex) {
+        if (!textField.getText().matches(regex)) {
+            textField.setStyle("-fx-border-color: red;");
+            addBtn.setDisable(true);
+        } else {
+            textField.setStyle("");
+            addBtn.setDisable(!areAllFieldsValid());
+        }
+    }
+    private boolean areAllFieldsValid() {
+        return isValidInput(first_name.getText(), nameRegex) &&
+                isValidInput(last_name.getText(), nameRegex) &&
+                isValidInput(email.getText(), emailRegex) &&
+                isValidInput(department.getText(), departmentRegex) &&
+                isValidInput(major.getText(), majorRegex);
+    }
+
+    private boolean isValidInput(String input, String regex) {
+        return input.matches(regex);
+    }
+
+    @FXML
+    private void handleAddButton() {
+        // Validate input fields and show validation messages
+        if (areAllFieldsValid()) {
+            // Your logic to handle the addition of the record goes here
+        }
+    }
     @FXML
     protected void addNewRecord() {
 
-            Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                    major.getText(), email.getText(), imageURL.getText());
-            cnUtil.insertUser(p);
-            cnUtil.retrieveId(p);
-            p.setId(cnUtil.retrieveId(p));
-            data.add(p);
-            clearForm();
+        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
+                major.getText(), email.getText(), imageURL.getText());
+        cnUtil.insertUser(p);
+        cnUtil.retrieveId(p);
+        p.setId(cnUtil.retrieveId(p));
+        data.add(p);
+        clearForm();
 
     }
 
@@ -117,14 +211,21 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void editRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-        int index = data.indexOf(p);
-        Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                major.getText(), email.getText(),  imageURL.getText());
-        cnUtil.editUser(p.getId(), p2);
-        data.remove(p);
-        data.add(index, p2);
-        tv.getSelectionModel().select(index);
+
+        if (p != null) {
+            int index = data.indexOf(p);
+            Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
+                    major.getText(), email.getText(), imageURL.getText());
+            cnUtil.editUser(p.getId(), p2);
+            data.remove(p);
+            data.add(index, p2);
+            tv.getSelectionModel().select(index);
+        } else {
+            // Handle the case where no item is selected (display a message, log, etc.)
+            System.out.println("No item selected for editing.");
+        }
     }
+
 
     @FXML
     protected void deleteRecord() {
