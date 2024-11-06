@@ -63,10 +63,14 @@
    -fx-cell-size: 35;
   -fx-alignment: center-left;
   -fx-background-color: #FFFFFF;
-  -fx-border-color: #29292D;
+  -fx-border-color: #888;
   -fx-text-fill: black;
   -fx-alignment: CENTER_LEFT;
+  -fx-border-width:0.0
 
+}
+.table-row-cell:filled .cell{
+    -fx-border-width:0.3
 }
 .table-row-cell:selected {
    -fx-background-color: whitesmoke;

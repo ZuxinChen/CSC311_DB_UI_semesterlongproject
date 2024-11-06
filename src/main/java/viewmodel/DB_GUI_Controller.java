@@ -3,6 +3,7 @@ package viewmodel;
 import dao.DbConnectivityClass;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -65,6 +66,11 @@ public class DB_GUI_Controller implements Initializable {
             tv.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     editSelectedRecord();
+                    editBtn.setDisable(false);
+                    deleteBtn.setDisable(false);
+                }else if(event.getClickCount() == 1){
+                    editBtn.setDisable(true);
+                    deleteBtn.setDisable(true);
                 }
             });
 
@@ -79,11 +85,9 @@ public class DB_GUI_Controller implements Initializable {
             addValidationListener(department, departmentRegex);
             addValidationListener(major, majorRegex);
 
-            // Add a listener to enable/disable the "Delete" button based on row selection
-            tv.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-                deleteBtn.setDisable(newSelection == null);
-                editBtn.setDisable(newSelection == null);
-            });
+
+
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);

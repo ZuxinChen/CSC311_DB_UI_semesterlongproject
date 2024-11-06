@@ -28,7 +28,9 @@ public class MainApplication extends Application {
         this.primaryStage.setResizable(false);
         primaryStage.getIcons().add(icon);
         primaryStage.setTitle("FSC CSC311 _ Database Project");
-        showScene1();
+        //showScene1();
+        showScene2();
+
     }
 
     private void showScene1() {
@@ -39,6 +41,19 @@ public class MainApplication extends Application {
             primaryStage.setScene(scene);
             primaryStage.show();
             changeScene();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void showScene2() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml").toURI().toURL());
+            Scene scene = new Scene(root, 900, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            primaryStage.setScene(scene);
+            primaryStage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
