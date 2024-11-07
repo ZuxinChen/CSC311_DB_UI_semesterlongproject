@@ -26,16 +26,25 @@ import service.MyLogger;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DB_GUI_Controller implements Initializable {
-
-    public Button deleteBtn;
-    public Button editBtn;
-    public Button addBtn;
+    @FXML
+    private Button deleteBtn;
+    @FXML
+    private Button editBtn;
+    @FXML
+    private Button addBtn;
+    @FXML
+    private ChoiceBox<String> MajorChoice;
     @FXML
     TextField first_name, last_name, department, major, email, imageURL;
+
     @FXML
     ImageView img_view;
     @FXML
@@ -46,12 +55,17 @@ public class DB_GUI_Controller implements Initializable {
     private TableColumn<Person, Integer> tv_id;
     @FXML
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
+
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
+
     private String nameRegex = "[A-Za-z]{2,25}";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private String departmentRegex = ".{1,20}";
     private String majorRegex = ".{1,20}";
+
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -74,7 +88,7 @@ public class DB_GUI_Controller implements Initializable {
                 }
             });
 
-            // Disable the "Delete" button initially
+            // Disable the "Delete" and "Edit" button initially
             deleteBtn.setDisable(true);
             editBtn.setDisable(true);
 
@@ -85,9 +99,15 @@ public class DB_GUI_Controller implements Initializable {
             addValidationListener(department, departmentRegex);
             addValidationListener(major, majorRegex);
 
+            enum majorOption {CS, CPIS, English}
+            //set choice box of major are CS, CPIS, English
+            ObservableList<String> majorList =
+                    FXCollections.observableArrayList(Stream.of(majorOption.values())
+                                .map(Enum::name).toList());
+            MajorChoice.setItems(majorList);
 
-
-
+            // Sets the default selection as CS
+            MajorChoice.setValue(majorOption.CS.name());
 
         } catch (Exception e) {
             throw new RuntimeException(e);
