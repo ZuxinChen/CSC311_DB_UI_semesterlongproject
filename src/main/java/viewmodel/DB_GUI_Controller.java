@@ -3,7 +3,6 @@ package viewmodel;
 import dao.DbConnectivityClass;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,12 +24,8 @@ import service.MyLogger;
 
 import java.io.File;
 import java.net.URL;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DB_GUI_Controller implements Initializable {
@@ -41,7 +36,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private Button addBtn;
     @FXML
-    private ChoiceBox<String> MajorChoice;
+    private ChoiceBox<String> majorChoice;
     @FXML
     TextField first_name, last_name, department, major, email, imageURL;
 
@@ -64,8 +59,7 @@ public class DB_GUI_Controller implements Initializable {
     private String departmentRegex = ".{1,20}";
     private String majorRegex = ".{1,20}";
 
-
-
+    String majorText = majorChoice.getValue();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -97,17 +91,26 @@ public class DB_GUI_Controller implements Initializable {
             addValidationListener(last_name, nameRegex);
             addValidationListener(email, emailRegex);
             addValidationListener(department, departmentRegex);
-            addValidationListener(major, majorRegex);
+            //addValidationListener(major, majorRegex);
+            majorChoice.itemsProperty().addListener((observable, oldValue, newValue) -> {
+                if (!majorChoice.getValue().matches(majorRegex)) {
+                    majorChoice.setStyle("-fx-border-color: red;");
+                    addBtn.setDisable(true);
+                } else {
+                    majorChoice.setStyle("");
+                    addBtn.setDisable(!areAllFieldsValid());
+                }
+            });
 
             enum majorOption {CS, CPIS, English}
             //set choice box of major are CS, CPIS, English
             ObservableList<String> majorList =
                     FXCollections.observableArrayList(Stream.of(majorOption.values())
                                 .map(Enum::name).toList());
-            MajorChoice.setItems(majorList);
+            majorChoice.setItems(majorList);
 
             // Sets the default selection as CS
-            MajorChoice.setValue(majorOption.CS.name());
+            majorChoice.setValue(majorOption.CS.name());
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -123,7 +126,8 @@ public class DB_GUI_Controller implements Initializable {
             first_name.setText(selectedPerson.getFirstName());
             last_name.setText(selectedPerson.getLastName());
             department.setText(selectedPerson.getDepartment());
-            major.setText(selectedPerson.getMajor());
+            //major.setText(selectedPerson.getMajor());
+            majorChoice.setValue(selectedPerson.getMajor());
             email.setText(selectedPerson.getEmail());
             imageURL.setText(selectedPerson.getImageURL());
         }
@@ -163,7 +167,8 @@ public class DB_GUI_Controller implements Initializable {
                 isValidInput(last_name.getText(), nameRegex) &&
                 isValidInput(email.getText(), emailRegex) &&
                 isValidInput(department.getText(), departmentRegex) &&
-                isValidInput(major.getText(), majorRegex);
+               // isValidInput(major.getText(), majorRegex);
+                isValidInput(majorChoice.getValue(), majorRegex);
     }
 
     private boolean isValidInput(String input, String regex) {
@@ -181,7 +186,8 @@ public class DB_GUI_Controller implements Initializable {
     protected void addNewRecord() {
 
         Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                major.getText(), email.getText(), imageURL.getText());
+              //  major.getText(), email.getText(), imageURL.getText());
+                majorChoice.getValue(), email.getText(), imageURL.getText());
         cnUtil.insertUser(p);
         cnUtil.retrieveId(p);
         p.setId(cnUtil.retrieveId(p));
@@ -195,7 +201,8 @@ public class DB_GUI_Controller implements Initializable {
         first_name.setText("");
         last_name.setText("");
         department.setText("");
-        major.setText("");
+        //major.setText("");
+        majorChoice.setValue("CS");
         email.setText("");
         imageURL.setText("");
     }
@@ -239,7 +246,8 @@ public class DB_GUI_Controller implements Initializable {
         if (p != null) {
             int index = data.indexOf(p);
             Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                    major.getText(), email.getText(), imageURL.getText());
+                   // major.getText(), email.getText(), imageURL.getText());
+                    majorChoice.getValue(), email.getText(), imageURL.getText());
             cnUtil.editUser(p.getId(), p2);
             data.remove(p);
             data.add(index, p2);
@@ -279,7 +287,8 @@ public class DB_GUI_Controller implements Initializable {
         first_name.setText(p.getFirstName());
         last_name.setText(p.getLastName());
         department.setText(p.getDepartment());
-        major.setText(p.getMajor());
+        //major.setText(p.getMajor());
+        majorChoice.setValue(p.getMajor());
         email.setText(p.getEmail());
         imageURL.setText(p.getImageURL());
     }
