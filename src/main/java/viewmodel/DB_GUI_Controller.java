@@ -22,7 +22,10 @@ import javafx.stage.Stage;
 import model.Person;
 import service.MyLogger;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -59,7 +62,6 @@ public class DB_GUI_Controller implements Initializable {
     private String departmentRegex = ".{1,20}";
     private String majorRegex = ".{1,20}";
 
-    String majorText = majorChoice.getValue();
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -100,7 +102,6 @@ public class DB_GUI_Controller implements Initializable {
                     majorChoice.setStyle("");
                     addBtn.setDisable(!areAllFieldsValid());
                 }
-
             });
 
             enum majorOption {CS, CPIS, English}
@@ -117,7 +118,44 @@ public class DB_GUI_Controller implements Initializable {
             throw new RuntimeException(e);
         }
     }
+    ObservableList<Person> personList;
+    public void fileReader(){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        Stage mainStage = (Stage)tv.getScene().getWindow();
+        // Set filters for file types if needed
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv"),
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
 
+        File selectedFile = fileChooser.showOpenDialog(mainStage);
+
+        if (selectedFile != null) {
+            personList.addAll(readPersonFromFile(selectedFile));
+        }
+
+    }
+
+    private ObservableList<Person> readPersonFromFile(File file){
+        ObservableList<Person> persons = FXCollections.observableArrayList();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length >= 7) {
+                    Person person = new Person(data[0], data[1], data[2],data[3],data[4],data[5]);
+                    persons.add(person);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return persons;
+    }
 
     private void editSelectedRecord() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
