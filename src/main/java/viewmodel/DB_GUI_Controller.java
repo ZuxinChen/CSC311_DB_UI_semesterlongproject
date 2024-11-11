@@ -100,6 +100,7 @@ public class DB_GUI_Controller implements Initializable {
                     majorChoice.setStyle("");
                     addBtn.setDisable(!areAllFieldsValid());
                 }
+
             });
 
             enum majorOption {CS, CPIS, English}
