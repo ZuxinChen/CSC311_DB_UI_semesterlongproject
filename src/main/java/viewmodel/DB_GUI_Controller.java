@@ -113,14 +113,14 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    // Method to trigger the importing of a CSV file.
     @FXML
-        // Method to trigger the reading of a CSV file.
-    void ReadCSV() {
+    void ImportCSV() {
         fileReader();
     }
 
+    // Method to trigger the exporting of data to a CSV file.
     @FXML
-        // Method to trigger the exporting of data to a CSV file.
     void ExportCSV() {
         fileWriter();
     }
@@ -130,10 +130,10 @@ public class DB_GUI_Controller implements Initializable {
         String CSV_FILE_PATH = "./src/main/resources/CSV/data.csv";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH));
              CSVPrinter csvPrinter = new CSVPrinter(writer,
-                     CSVFormat.DEFAULT.withHeader("id", "firstName", "lastName",
+                     CSVFormat.DEFAULT.withHeader("firstName", "lastName",
                              "department", "major","email","imageURL"))) {
             for (Person p:data) {
-                csvPrinter.printRecord(p.getId(),p.getFirstName(),p.getLastName(),
+                csvPrinter.printRecord(p.getFirstName(),p.getLastName(),
                         p.getDepartment(),p.getMajor(), p.getEmail(),p.getImageURL());
             }
             csvPrinter.flush();
@@ -176,7 +176,7 @@ public class DB_GUI_Controller implements Initializable {
         ObservableList<Person> persons = FXCollections.observableArrayList();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            if(!reader.readLine().equals("id,firstName,lastName,department,major,email,imageURL")){
+            if(!reader.readLine().equals("firstName,lastName,department,major,email,imageURL")){
                 System.out.println("Invalid Header,choose another CSV file");
                 return null;
             }
@@ -184,7 +184,7 @@ public class DB_GUI_Controller implements Initializable {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data.length >= 7) {
-                    Person person = new Person(Integer.getInteger(data[0]), data[1], data[2],data[3],data[4],data[5],data[6]);
+                    Person person = new Person(data[0], data[1], data[2],data[3],data[4],data[5]);
                     persons.add(person);
                 }
             }
