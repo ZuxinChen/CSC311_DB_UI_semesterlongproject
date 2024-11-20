@@ -24,20 +24,23 @@ public class UserSession {
     }
 
 
-
-    public static UserSession getInstace(String userName,String password, String privileges) {
+    //double-checked locking for null instance
+    public static UserSession getInstance(String userName,String password, String privileges) {
         if(instance == null) {
-            instance = new UserSession(userName, password, privileges);
+            synchronized (UserSession.class) {
+                if (instance == null) {
+                    instance = new UserSession(userName, password, privileges);
+                }
+            }
         }
         return instance;
     }
-
-    public static UserSession getInstace(String userName,String password) {
-        if(instance == null) {
-            instance = new UserSession(userName, password, "NONE");
-        }
-        return instance;
+    //add lock already in getInstance(String userName,String password, String privileges)
+    // it need to add lock
+    public static UserSession getInstance(String userName,String password) {
+        return getInstance(userName, password, "NONE");
     }
+
     public String getUserName() {
         return this.userName;
     }

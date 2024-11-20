@@ -1,9 +1,12 @@
 package viewmodel;
 
+import com.azure.storage.blob.BlobClient;
 import dao.DbConnectivityClass;
+import dao.StorageUploader;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +29,7 @@ import service.MyLogger;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
@@ -38,6 +42,8 @@ public class DB_GUI_Controller implements Initializable {
     private Button editBtn;
     @FXML
     private Button addBtn;
+    @FXML
+    private ProgressBar progressBar;
     @FXML
     private ChoiceBox<String> majorChoice;
     @FXML
@@ -56,7 +62,7 @@ public class DB_GUI_Controller implements Initializable {
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
-
+    private StorageUploader store = new StorageUploader();
 
     private String nameRegex = "[A-Za-z]{2,25}";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
@@ -94,7 +100,6 @@ public class DB_GUI_Controller implements Initializable {
             addValidationListener(last_name, nameRegex);
             addValidationListener(email, emailRegex);
             addValidationListener(department, departmentRegex);
-            //addValidationListener(major, majorRegex);
 
 
             enum majorOption {CS, CPIS, English}
@@ -243,7 +248,6 @@ public class DB_GUI_Controller implements Initializable {
                 isValidInput(last_name.getText(), nameRegex) &&
                 isValidInput(email.getText(), emailRegex) &&
                 isValidInput(department.getText(), departmentRegex) &&
-               // isValidInput(major.getText(), majorRegex);
                 isValidInput(majorChoice.getValue(), majorRegex);
     }
 
@@ -262,7 +266,6 @@ public class DB_GUI_Controller implements Initializable {
     protected void addNewRecord() {
 
         Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-              //  major.getText(), email.getText(), imageURL.getText());
                 majorChoice.getValue(), email.getText(), imageURL.getText());
         cnUtil.insertUser(p);
         cnUtil.retrieveId(p);
@@ -277,7 +280,6 @@ public class DB_GUI_Controller implements Initializable {
         first_name.setText("");
         last_name.setText("");
         department.setText("");
-        //major.setText("");
         majorChoice.setValue("CS");
         email.setText("");
         imageURL.setText("");
@@ -322,7 +324,6 @@ public class DB_GUI_Controller implements Initializable {
         if (p != null) {
             int index = data.indexOf(p);
             Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                   // major.getText(), email.getText(), imageURL.getText());
                     majorChoice.getValue(), email.getText(), imageURL.getText());
             cnUtil.editUser(p.getId(), p2);
             data.remove(p);
@@ -349,7 +350,50 @@ public class DB_GUI_Controller implements Initializable {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
+
         }
+        Task<Void> uploadTask = createUploadTask(file, progressBar);
+        progressBar.progressProperty().bind(uploadTask.progressProperty());
+
+        new Thread(uploadTask).start();
+
+
+    }
+
+
+
+    private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
+        return new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                progressBar.setOpacity(1);
+                progressBar.setDisable(false);
+
+                BlobClient blobClient = store.getContainerClient().getBlobClient(file.getName());
+                long fileSize = Files.size(file.toPath());
+                long uploadedBytes = 0;
+
+                try (FileInputStream fileInputStream = new FileInputStream(file);
+                     OutputStream blobOutputStream = blobClient.getBlockBlobClient().getBlobOutputStream()) {
+
+                    byte[] buffer = new byte[1024 * 1024]; // 1 MB buffer size
+                    int bytesRead;
+
+                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                        blobOutputStream.write(buffer, 0, bytesRead);
+                        uploadedBytes += bytesRead;
+
+                        // Calculate and update progress as a percentage
+                        int progress = (int) ((double) uploadedBytes / fileSize * 100);
+                        updateProgress(progress, 100);
+
+
+                    }
+                }
+
+                return null;
+            }
+        };
     }
 
     @FXML

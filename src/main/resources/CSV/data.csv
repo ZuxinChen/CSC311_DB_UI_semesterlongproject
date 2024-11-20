@@ -1,0 +1,6 @@
+firstName,lastName,department,major,email,imageURL
+John,Doe,CS,Artificial Intelligence,john.doe@example.com,https://example.com/images/johndoe.jpg
+Jane,Smith,CS,jane.smith@university.edu,https://university.edu/images/janesmith.png
+Bob,Johnson,CPIS,bob.johnson@finance.com,https://finance.com/images/bobj.png
+Alice,Brown,English,Organic Chemistry,a.brown@chem.org,https://chem.org/images/aliceb.jpg
+Mike,Wilson,English,American History,mike.wilson@history.net,https://history.net/images/mikew.png

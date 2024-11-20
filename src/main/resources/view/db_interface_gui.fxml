@@ -50,11 +50,12 @@
                     <children>
                         <AnchorPane prefHeight="215.0" prefWidth="88.0">
                             <children>
-                                <ImageView fx:id="img_view" fitHeight="111.0" fitWidth="122.0" layoutX="10.0" layoutY="11.0" onMouseClicked="#showImage" pickOnBounds="true" preserveRatio="true" styleClass="image_view">
+                                <ImageView fx:id="img_view" fitHeight="111.0" fitWidth="122.0" layoutX="9.0" layoutY="14.0" onMouseClicked="#showImage" pickOnBounds="true" preserveRatio="true" styleClass="image_view">
                                     <image>
                                         <Image url="@../images/profile.png" />
                                     </image>
                                 </ImageView>
+                        <ProgressBar fx:id="progressBar" disable="true" layoutX="8.0" layoutY="125.0" opacity="0.0" prefHeight="23.0" prefWidth="116.0" progress="0.0" />
                             </children>
                         </AnchorPane>
                     </children>
