@@ -20,16 +20,16 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Person;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import service.MyLogger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
+
 
 public class DB_GUI_Controller implements Initializable {
     @FXML
@@ -56,6 +56,7 @@ public class DB_GUI_Controller implements Initializable {
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
+
 
     private String nameRegex = "[A-Za-z]{2,25}";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
@@ -94,15 +95,7 @@ public class DB_GUI_Controller implements Initializable {
             addValidationListener(email, emailRegex);
             addValidationListener(department, departmentRegex);
             //addValidationListener(major, majorRegex);
-            majorChoice.itemsProperty().addListener((observable, oldValue, newValue) -> {
-                if (!majorChoice.getValue().matches(majorRegex)) {
-                    majorChoice.setStyle("-fx-border-color: red;");
-                    addBtn.setDisable(true);
-                } else {
-                    majorChoice.setStyle("");
-                    addBtn.setDisable(!areAllFieldsValid());
-                }
-            });
+
 
             enum majorOption {CS, CPIS, English}
             //set choice box of major are CS, CPIS, English
@@ -114,40 +107,84 @@ public class DB_GUI_Controller implements Initializable {
             // Sets the default selection as CS
             majorChoice.setValue(majorOption.CS.name());
 
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    ObservableList<Person> personList;
-    public void fileReader(){
+
+    @FXML
+        // Method to trigger the reading of a CSV file.
+    void ReadCSV() {
+        fileReader();
+    }
+
+    @FXML
+        // Method to trigger the exporting of data to a CSV file.
+    void ExportCSV() {
+        fileWriter();
+    }
+
+    // Method to write data to a CSV file.
+    private void fileWriter(){
+        String CSV_FILE_PATH = "./src/main/resources/CSV/data.csv";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH));
+             CSVPrinter csvPrinter = new CSVPrinter(writer,
+                     CSVFormat.DEFAULT.withHeader("id", "firstName", "lastName",
+                             "department", "major","email","imageURL"))) {
+            for (Person p:data) {
+                csvPrinter.printRecord(p.getId(),p.getFirstName(),p.getLastName(),
+                        p.getDepartment(),p.getMajor(), p.getEmail(),p.getImageURL());
+            }
+            csvPrinter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // Method to read data from a CSV file using a file chooser dialog.
+    private void fileReader(){
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
+
+        File initialDirectory = new File("./src/main/resources/CSV");
+        if (initialDirectory.exists()) {
+            fileChooser.setInitialDirectory(initialDirectory);
+        }
+
         Stage mainStage = (Stage)tv.getScene().getWindow();
         // Set filters for file types if needed
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                //new FileChooser.ExtensionFilter("Text Files", "*.txt"),
                 new FileChooser.ExtensionFilter("CSV Files", "*.csv"),
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
+                //new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
 
         File selectedFile = fileChooser.showOpenDialog(mainStage);
 
         if (selectedFile != null) {
-            personList.addAll(readPersonFromFile(selectedFile));
+            ObservableList<Person> persons = readPersonFromFile(selectedFile);
+            if(persons != null)
+                data.addAll(persons);
         }
 
     }
 
+    // Method to read persons' data from a selected file and
+    // return an ObservableList of Person objects.
     private ObservableList<Person> readPersonFromFile(File file){
         ObservableList<Person> persons = FXCollections.observableArrayList();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            reader.readLine();
+            if(!reader.readLine().equals("id,firstName,lastName,department,major,email,imageURL")){
+                System.out.println("Invalid Header,choose another CSV file");
+                return null;
+            }
+
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data.length >= 7) {
-                    Person person = new Person(data[0], data[1], data[2],data[3],data[4],data[5]);
+                    Person person = new Person(Integer.getInteger(data[0]), data[1], data[2],data[3],data[4],data[5],data[6]);
                     persons.add(person);
                 }
             }
