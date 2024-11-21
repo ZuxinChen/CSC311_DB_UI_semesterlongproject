@@ -55,7 +55,7 @@
                                         <Image url="@../images/profile.png" />
                                     </image>
                                 </ImageView>
-                        <ProgressBar fx:id="progressBar" disable="true" layoutX="8.0" layoutY="125.0" opacity="0.0" prefHeight="23.0" prefWidth="116.0" progress="0.0" />
+                        <ProgressBar fx:id="progressBar" disable="true" layoutX="8.0" layoutY="125.0" opacity="0.11" prefHeight="23.0" prefWidth="116.0" progress="0.0" />
                             </children>
                         </AnchorPane>
                     </children>

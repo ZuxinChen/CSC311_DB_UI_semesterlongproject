@@ -47,7 +47,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private ChoiceBox<String> majorChoice;
     @FXML
-    TextField first_name, last_name, department, major, email, imageURL;
+    TextField first_name, last_name, department, email, imageURL;
 
     @FXML
     ImageView img_view;
@@ -62,7 +62,7 @@ public class DB_GUI_Controller implements Initializable {
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
-    private StorageUploader store = new StorageUploader();
+    private final StorageUploader store = new StorageUploader();
 
     private String nameRegex = "[A-Za-z]{2,25}";
     private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
@@ -207,7 +207,6 @@ public class DB_GUI_Controller implements Initializable {
             first_name.setText(selectedPerson.getFirstName());
             last_name.setText(selectedPerson.getLastName());
             department.setText(selectedPerson.getDepartment());
-            //major.setText(selectedPerson.getMajor());
             majorChoice.setValue(selectedPerson.getMajor());
             email.setText(selectedPerson.getEmail());
             imageURL.setText(selectedPerson.getImageURL());
@@ -351,21 +350,20 @@ public class DB_GUI_Controller implements Initializable {
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
 
+            Task<String> uploadTask = createUploadTask(file, progressBar);
+            progressBar.progressProperty().bind(uploadTask.progressProperty());
+            uploadTask.setOnSucceeded(_ -> imageURL.setText(uploadTask.getValue()));
+            new Thread(uploadTask).start();
         }
-        Task<Void> uploadTask = createUploadTask(file, progressBar);
-        progressBar.progressProperty().bind(uploadTask.progressProperty());
-
-        new Thread(uploadTask).start();
-
 
     }
 
 
 
-    private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
+    private Task<String> createUploadTask(File file, ProgressBar progressBar) {
         return new Task<>() {
             @Override
-            protected Void call() throws Exception {
+            protected String call() throws Exception {
                 progressBar.setOpacity(1);
                 progressBar.setDisable(false);
 
@@ -391,7 +389,7 @@ public class DB_GUI_Controller implements Initializable {
                     }
                 }
 
-                return null;
+                return blobClient.getBlobUrl();
             }
         };
     }
