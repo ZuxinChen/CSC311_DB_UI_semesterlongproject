@@ -1,6 +1,6 @@
 ## Overview
 
-This program is a register system that supports keyboard shortcuts, row editing, image uploading,and function customization based on user permissions. 
+This program is a student register system that supports keyboard shortcuts, row editing, image uploading,and function customization based on user permissions. 
 It aims to provide an intuitive and efficient user interface for users to manage and edit student data.
 
 ## Features
