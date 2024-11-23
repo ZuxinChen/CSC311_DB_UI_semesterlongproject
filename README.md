@@ -1,3 +1,6 @@
+# !!!!!!Warning, I can't upload to github, pushed fail, please use the packaged file
+
+
 ## Overview
 
 This program is a student register system that supports keyboard shortcuts, row editing, image uploading,and function customization based on user permissions. 
