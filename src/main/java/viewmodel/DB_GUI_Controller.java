@@ -30,6 +30,7 @@ import model.Person;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import service.MyLogger;
+import service.UserSession;
 
 import java.io.*;
 import java.net.URL;
@@ -80,6 +81,12 @@ public class DB_GUI_Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
+
+            // Disable the "Add", "Delete" and "Edit" button initially
+            deleteBtn.setDisable(true);
+            editBtn.setDisable(true);
+            addBtn.setDisable(true);
+
             // Set an editable cell factory
             tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
             tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
@@ -90,6 +97,7 @@ public class DB_GUI_Controller implements Initializable {
                                                             .collect(Collectors.toList()))
             ));
             tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+            tv_major.setText("CS");
 
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -105,34 +113,37 @@ public class DB_GUI_Controller implements Initializable {
             tv.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-                    if(selectedPerson != null) {
-                        editSelectedRecord();
-                        editBtn.setDisable(false);
-                        deleteBtn.setDisable(false);
-                    }else{
+                    if(selectedPerson == null) {
                         Person emptyPerson = new Person();
                         data.add(emptyPerson);
+
                         tv.scrollTo(data.indexOf(emptyPerson));
-                        tv.getSelectionModel().select(emptyPerson);
+                        //tv.getSelectionModel().select(emptyPerson);
+                        emptyPerson.setMajor("CS");
+                        tv.refresh();
+                    }else{
+                        //if(selectedPerson.getId() != null) {
+                            editSelectedRecord();
+                            //editBtn.setDisable(false);
+                           // deleteBtn.setDisable(false);
+                       // }
 
                     }
 
 
                 }else if(event.getClickCount() == 1){
+                    addBtn.setDisable(true);
                     editBtn.setDisable(true);
                     deleteBtn.setDisable(true);
                 }
             });
 
-            // Disable the "Add", "Delete" and "Edit" button initially
-            deleteBtn.setDisable(true);
-            editBtn.setDisable(true);
-            addBtn.setDisable(true);
 
-//            addValidationListener(first_name, nameRegex);
-//            addValidationListener(last_name, nameRegex);
-//            addValidationListener(email, emailRegex);
-//            addValidationListener(department, departmentRegex);
+            addValidationListener(first_name, nameRegex);
+            addValidationListener(last_name, nameRegex);
+            addValidationListener(email, emailRegex);
+            addValidationListener(department, departmentRegex);
+
 
             //Listen to columns date with validation
             setValidDate(tv_fn, nameRegex);
@@ -254,8 +265,6 @@ public class DB_GUI_Controller implements Initializable {
             email.setText(selectedPerson.getEmail());
             imageURL.setText(selectedPerson.getImageURL());
 
-
-
             String url = selectedPerson.getImageURL();
             String sasToken = "sp=r&st=2024-11-22T22:43:30Z&se=2024-11-23T06:43:30Z&spr=https&sv=2022-11-02&sr=c&sig=c2io%2BEFq7fe%2BcT3CEd0YLm6EWbZnqirHtEFeJjOYlxQ%3D";
             //if URL not in validity, set image view in defuel image
@@ -265,6 +274,13 @@ public class DB_GUI_Controller implements Initializable {
             String blobUrlWithSAS = url + "?" + sasToken;
             img_view.setImage(new Image(blobUrlWithSAS));
 
+            if(selectedPerson.getId() !=null) {
+                addBtn.setDisable(!areAllFieldsValid());
+                deleteBtn.setDisable(!areAllFieldsValid());
+                editBtn.setDisable(!areAllFieldsValid());
+            }else {
+                addBtn.setDisable(!areAllFieldsValid());
+            }
 
         }
     }
@@ -316,14 +332,31 @@ public class DB_GUI_Controller implements Initializable {
     private void addCellListener(TableColumn<Person, String> column, String regex){
         column.setOnEditCommit(event -> {
             String newValue = event.getNewValue();
-            // If the new value doesn't match the regular expression, it can not add
+            Person selectedPerson = tv.getSelectionModel().getSelectedItem();
             if (!newValue.matches(regex)) {
                 addBtn.setDisable(true);
             }else {
-                addBtn.setDisable(!areAllCellsValid());
+                // Updates selected Person object
+                switch (column.getText()) {
+                    case "First Name":
+                        selectedPerson.setFirstName(newValue);
+                        break;
+                    case "Last Name":
+                        selectedPerson.setLastName(newValue);
+                        break;
+                    case "Email":
+                        selectedPerson.setEmail(newValue);
+                        break;
+                    case "Department":
+                        selectedPerson.setDepartment(newValue);
+                        break;
+                    case "Major":
+                        selectedPerson.setMajor(newValue);
+                        break;
+                }
             }
 
-
+            addBtn.setDisable(!areAllCellsValid());
         });
     }
 
@@ -332,12 +365,12 @@ public class DB_GUI_Controller implements Initializable {
         return isValidInput(selectedPerson.getFirstName(), nameRegex) &&
                 isValidInput(selectedPerson.getLastName(), nameRegex) &&
                 isValidInput(selectedPerson.getEmail(), emailRegex) &&
-                isValidInput(selectedPerson.getDepartment(), departmentRegex) &&
-                isValidInput(selectedPerson.getMajor(), majorRegex);
+                isValidInput(selectedPerson.getDepartment(), departmentRegex);
+                //isValidInput(selectedPerson.getMajor(), majorRegex);
     }
 
     private boolean isValidInput(String input, String regex) {
-        return input == null || input.matches(regex);
+        return input.matches(regex);
     }
 
 /********************************************/
@@ -388,15 +421,22 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void addNewRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-//        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-//                majorChoice.getValue(), email.getText(), imageURL.getText());
-        cnUtil.insertUser(p);
-        cnUtil.retrieveId(p);
-        p.setId(cnUtil.retrieveId(p));
-        int i = data.indexOf(p);
-        data.set(i,p);
-        //data.add(p);
-        //clearForm();
+        if(p == null) {
+            Person newP = new Person(first_name.getText(), last_name.getText(), department.getText(),
+                    majorChoice.getValue(), email.getText(), imageURL.getText());
+            cnUtil.insertUser(newP);
+            cnUtil.retrieveId(newP);
+            newP.setId(cnUtil.retrieveId(newP));
+            data.add(newP);
+            clearForm();
+        }else {
+            System.out.println(p);
+            cnUtil.insertUser(p);
+            cnUtil.retrieveId(p);
+            p.setId(cnUtil.retrieveId(p));
+            int i = data.indexOf(p);
+            data.set(i,p);
+        }
 
     }
 
@@ -446,7 +486,7 @@ public class DB_GUI_Controller implements Initializable {
     protected void editRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
 
-        if (p != null) {
+        if (p != null &&p.getId() != null) {
             int index = data.indexOf(p);
             Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
                     majorChoice.getValue(), email.getText(), imageURL.getText());
@@ -491,18 +531,15 @@ public class DB_GUI_Controller implements Initializable {
                 progressBar.progressProperty().bind(uploadTask.progressProperty());
                 // The upload is successful
                 uploadTask.setOnSucceeded(event -> {
-                    System.out.println("successful");
-                    System.out.println(uploadTask.getValue());
                     progressBar.setOpacity(0);
                     progressBar.setDisable(true);
-                    imageURL.setText(uploadTask.getValue());
-                    editRecord();
+                    Person p = tv.getSelectionModel().getSelectedItem();
+                    p.setImageURL(uploadTask.getValue());
+                    editSelectedRecord();
                 });
 
                 // upload fails
                 uploadTask.setOnFailed(event -> {
-                    System.out.println("fail");
-                    System.out.println(uploadTask.getValue());
                     progressBar.setOpacity(0);
                     progressBar.setDisable(true);
                 });

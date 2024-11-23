@@ -61,7 +61,7 @@
                   <Font size="18.0" />
                </font>
             </Text>
-            <TextField fx:id="userName" />
+            <TextField fx:id="userName" promptText="email_id@domain.edu" />
          </children></VBox>
         <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
         <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="7">

@@ -31,19 +31,27 @@ public class SignUpController implements Initializable {
 
     enum level{High, low, NONE}
 
+    private String userNameRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.edu$";
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
         ObservableList<String> levelList =
                 FXCollections.observableArrayList(Stream.of(level.values())
                         .map(Enum::name).toList());
         privileges.setItems(levelList);
+        privileges.setValue("High");
     }
 
     public void createNewAccount(ActionEvent actionEvent) {
-        UserSession.getInstance(userName.getText(), password.getText(), privileges.getValue());
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("A user account has been created！");
-        alert.showAndWait();
+        if(!userName.getText().matches(userNameRegex)){
+            userName.setText("");
+        }else {
+            UserSession.getInstance(userName.getText(), password.getText(), privileges.getValue());
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("A user account has been created！");
+            alert.showAndWait();
+        }
     }
 
     public void goBack(ActionEvent actionEvent) {

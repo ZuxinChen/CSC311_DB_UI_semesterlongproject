@@ -10,6 +10,12 @@ public class Person {
     private String imageURL;
 
     public Person() {
+        this.firstName = "";
+        this.lastName = "";
+        this.department = "";
+        this.major = "";
+        this.email = "";
+        this.imageURL = "";
     }
 
     public Person(String firstName, String lastName, String department, String major, String email,  String imageURL) {
