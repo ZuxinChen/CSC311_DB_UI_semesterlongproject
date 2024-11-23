@@ -143,6 +143,7 @@ public class DB_GUI_Controller implements Initializable {
                 deleteBtn.setVisible(false);
                 addBtn.setVisible(false);
                 editBtn.setVisible(false);
+                tv.setDisable(false);
 
             }else if(userSession.getPrivileges().equals("Low")){
                 addBtn.setVisible(false);
