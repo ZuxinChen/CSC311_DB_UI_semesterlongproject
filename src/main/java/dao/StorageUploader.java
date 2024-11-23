@@ -7,10 +7,10 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 public class StorageUploader {
 
     private BlobContainerClient containerClient;
-
+    String storageKey = System.getenv("storageKey");
     public StorageUploader( ) {
         this.containerClient = new BlobContainerClientBuilder()
-                .connectionString("DefaultEndpointsProtocol=https;AccountName=csc311storagechen;AccountKey=AqjyjM9z0mmZKyqpJy7DIZT3/KQA8jN26stjyiL9DSNuptE3l98/c//Fn6Y4LsduXVeo9ZCOnOgC+ASt8ljoYg==;EndpointSuffix=core.windows.net")
+                .connectionString(storageKey)
                 .containerName("media-files")
                 .buildClient();
     }
