@@ -138,6 +138,7 @@ public class DB_GUI_Controller implements Initializable {
                 }
             });
 
+
             UserSession userSession = UserSession.getInstance();
             if(userSession.getPrivileges().equals("None")){
                 deleteBtn.setVisible(false);
