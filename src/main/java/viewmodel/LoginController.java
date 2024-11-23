@@ -14,16 +14,17 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import service.UserSession;
+import javafx.scene.control.TextField;
 
-import java.awt.*;
 
 
 public class LoginController {
-    @FXML
-    private PasswordField passwordField;
 
     @FXML
     private TextField usernameTextField;
+
+    @FXML
+    private PasswordField passwordField;
 
     @FXML
     private GridPane rootpane;
@@ -40,8 +41,10 @@ public class LoginController {
         );
 
         UserSession userSession = UserSession.getInstance();
-        usernameTextField.setText(userSession.getUserName());
-        passwordField.setText(userSession.getPassword());
+        if(userSession !=null) {
+            usernameTextField.setText(userSession.getUserName());
+            passwordField.setText(userSession.getPassword());
+        }
 
 
         rootpane.setOpacity(0);
@@ -63,25 +66,26 @@ public class LoginController {
         UserSession userSession = UserSession.getInstance();
         String username = usernameTextField.getText();
         String password = passwordField.getText();
+        if(userSession !=null) {
+            if (!(userSession.getUserName().equals(username) && userSession.getPassword().equals(password))) {
+                if (!(userSession.getUserName().equals(username))) {
+                    usernameTextField.setText("");
+                }
+                if (!(userSession.getPassword().equals(password))) {
+                    passwordField.setText("");
+                }
 
-        if(!(userSession.getUserName().equals(username) && userSession.getPassword().equals(password))){
-            if(!(userSession.getUserName().equals(username))){
-                usernameTextField.setText("");
-            }
-            if(!(userSession.getPassword().equals(password))){
-                passwordField.setText("");
-            }
-
-        }else{
-            try {
-                Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
-                Scene scene = new Scene(root, 900, 600);
-                scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
-                Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-                window.setScene(scene);
-                window.show();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else {
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
+                    Scene scene = new Scene(root, 900, 600);
+                    scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+                    Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+                    window.setScene(scene);
+                    window.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

@@ -20,7 +20,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -138,6 +138,20 @@ public class DB_GUI_Controller implements Initializable {
                 }
             });
 
+            UserSession userSession = UserSession.getInstance();
+            if(userSession.getPrivileges().equals("None")){
+                deleteBtn.setVisible(false);
+                addBtn.setVisible(false);
+                editBtn.setVisible(false);
+
+            }else if(userSession.getPrivileges().equals("Low")){
+                addBtn.setVisible(false);
+                editBtn.setVisible(false);
+
+            }else if(userSession.getPrivileges().equals("High")){
+                tv.setOnKeyPressed(event -> handleKeyPress(event));
+            }
+
 
             addValidationListener(first_name, nameRegex);
             addValidationListener(last_name, nameRegex);
@@ -167,6 +181,37 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    //shortcut key implication
+    private void handleKeyPress(KeyEvent event){
+        //shortcut key Ctrl + E : edit
+        if (event.isControlDown() && event.getCode() == KeyCode.E) {
+            editRecord();
+            event.consume();
+        }
+        //shortcut key Ctrl + D : delete
+        if (event.isControlDown() && event.getCode() == KeyCode.D) {
+            deleteRecord();
+            event.consume();
+        }
+        //shortcut key Ctrl + R : clear
+        if (event.isControlDown() && event.getCode() == KeyCode.R) {
+            clearForm();
+            event.consume();
+        }
+        //shortcut key Ctrl + C : copy
+        if (event.isControlDown() && event.getCode() == KeyCode.C) {
+            String selectedData =  tv.getSelectionModel().getSelectedItem().toString();
+            if (selectedData != null && !selectedData.isEmpty()) {
+                // Place the selected data on the clipboard
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent content = new ClipboardContent();
+                content.putString(selectedData);
+                clipboard.setContent(content);
+            }
+            event.consume();
+        }
+
+    }
     // Method to trigger the importing of a CSV file.
     @FXML
     void ImportCSV() {

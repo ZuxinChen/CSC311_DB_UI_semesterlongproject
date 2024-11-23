@@ -28,8 +28,8 @@ public class MainApplication extends Application {
         this.primaryStage.setResizable(false);
         primaryStage.getIcons().add(icon);
         primaryStage.setTitle("FSC CSC311 _ Database Project");
-        //showScene1();
-        showScene2();
+        showScene1();
+        //showScene2();
 
     }
 
