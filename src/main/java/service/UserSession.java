@@ -41,6 +41,10 @@ public class UserSession {
         return getInstance(userName, password, "NONE");
     }
 
+    public static UserSession getInstance(){
+        return instance;
+    }
+
     public String getUserName() {
         return this.userName;
     }

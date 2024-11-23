@@ -2,6 +2,7 @@ package dao;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import model.Person;
 import service.MyLogger;
 
@@ -230,5 +231,27 @@ public class DbConnectivityClass {
         }
         lg.makeLog(String.valueOf(id));
         return id;
+    }
+
+    public ObservableSet<String> getURLSet() {
+        ObservableSet<String> URLSet = FXCollections.observableSet();
+        connectToDatabase();
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT imageURL FROM users ";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                URLSet.add(resultSet.getString("imageURL"));
+            }
+
+            preparedStatement.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return URLSet;
     }
 }

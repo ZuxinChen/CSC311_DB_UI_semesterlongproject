@@ -126,7 +126,7 @@
                 </VBox>
          </right>
          <center>
-                <TableView fx:id="tv" onMouseClicked="#selectedItemTV" prefHeight="539.0" prefWidth="566.0" styleClass="table_view" BorderPane.alignment="CENTER">
+                <TableView fx:id="tv" editable="true" onMouseClicked="#selectedItemTV" prefHeight="539.0" prefWidth="566.0" styleClass="table_view" BorderPane.alignment="CENTER">
                     <columns>
                         <TableColumn fx:id="tv_id" prefWidth="42.0" styleClass="table_columns" text="ID" />
                         <TableColumn fx:id="tv_fn" prefWidth="117.0" styleClass="table_columns" text="First Name" />

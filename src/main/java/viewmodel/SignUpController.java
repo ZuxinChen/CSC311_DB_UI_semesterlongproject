@@ -29,7 +29,7 @@ public class SignUpController implements Initializable {
     @FXML
     private TextField userName;
 
-    enum level{High, low, None}
+    enum level{High, low, NONE}
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){

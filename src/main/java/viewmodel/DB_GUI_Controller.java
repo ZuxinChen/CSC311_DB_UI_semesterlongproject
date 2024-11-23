@@ -6,6 +6,7 @@ import dao.StorageUploader;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +15,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ChoiceBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.DefaultStringConverter;
 import model.Person;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -30,8 +34,10 @@ import service.MyLogger;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -69,9 +75,22 @@ public class DB_GUI_Controller implements Initializable {
     private String departmentRegex = ".{1,20}";
     private String majorRegex = ".{1,20}";
 
+    enum majorOption {CS, CPIS, English}
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
+            // Set an editable cell factory
+            tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+            tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+            tv_department.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+            tv_major.setCellFactory(ChoiceBoxTableCell.forTableColumn(
+                    FXCollections.observableArrayList(Arrays.stream(majorOption.values())
+                                                            .map(Enum::name)
+                                                            .collect(Collectors.toList()))
+            ));
+            tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
@@ -79,30 +98,49 @@ public class DB_GUI_Controller implements Initializable {
             tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
             tv.setItems(data);
+
+            tv.setEditable(true);
+
             // Add mouse click event handler to the table view
             tv.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
-                    editSelectedRecord();
-                    editBtn.setDisable(false);
-                    deleteBtn.setDisable(false);
+                    Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+                    if(selectedPerson != null) {
+                        editSelectedRecord();
+                        editBtn.setDisable(false);
+                        deleteBtn.setDisable(false);
+                    }else{
+                        Person emptyPerson = new Person();
+                        data.add(emptyPerson);
+                        tv.scrollTo(data.indexOf(emptyPerson));
+                        tv.getSelectionModel().select(emptyPerson);
+
+                    }
+
+
                 }else if(event.getClickCount() == 1){
                     editBtn.setDisable(true);
                     deleteBtn.setDisable(true);
                 }
             });
 
-            // Disable the "Delete" and "Edit" button initially
+            // Disable the "Add", "Delete" and "Edit" button initially
             deleteBtn.setDisable(true);
             editBtn.setDisable(true);
-
             addBtn.setDisable(true);
-            addValidationListener(first_name, nameRegex);
-            addValidationListener(last_name, nameRegex);
-            addValidationListener(email, emailRegex);
-            addValidationListener(department, departmentRegex);
+
+//            addValidationListener(first_name, nameRegex);
+//            addValidationListener(last_name, nameRegex);
+//            addValidationListener(email, emailRegex);
+//            addValidationListener(department, departmentRegex);
+
+            //Listen to columns date with validation
+            setValidDate(tv_fn, nameRegex);
+            setValidDate(tv_ln, nameRegex);
+            setValidDate(tv_department, departmentRegex);
+            setValidDate(tv_email, emailRegex);
 
 
-            enum majorOption {CS, CPIS, English}
             //set choice box of major are CS, CPIS, English
             ObservableList<String> majorList =
                     FXCollections.observableArrayList(Stream.of(majorOption.values())
@@ -131,23 +169,24 @@ public class DB_GUI_Controller implements Initializable {
     }
 
     // Method to write data to a CSV file.
-    private void fileWriter(){
+    private void fileWriter() {
         String CSV_FILE_PATH = "./src/main/resources/CSV/data.csv";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH));
              CSVPrinter csvPrinter = new CSVPrinter(writer,
                      CSVFormat.DEFAULT.withHeader("firstName", "lastName",
-                             "department", "major","email","imageURL"))) {
-            for (Person p:data) {
-                csvPrinter.printRecord(p.getFirstName(),p.getLastName(),
-                        p.getDepartment(),p.getMajor(), p.getEmail(),p.getImageURL());
+                             "department", "major", "email", "imageURL"))) {
+            for (Person p : data) {
+                csvPrinter.printRecord(p.getFirstName(), p.getLastName(),
+                        p.getDepartment(), p.getMajor(), p.getEmail(), p.getImageURL());
             }
             csvPrinter.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     // Method to read data from a CSV file using a file chooser dialog.
-    private void fileReader(){
+    private void fileReader() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
 
@@ -156,12 +195,10 @@ public class DB_GUI_Controller implements Initializable {
             fileChooser.setInitialDirectory(initialDirectory);
         }
 
-        Stage mainStage = (Stage)tv.getScene().getWindow();
+        Stage mainStage = (Stage) tv.getScene().getWindow();
         // Set filters for file types if needed
         fileChooser.getExtensionFilters().addAll(
-                //new FileChooser.ExtensionFilter("Text Files", "*.txt"),
                 new FileChooser.ExtensionFilter("CSV Files", "*.csv"),
-                //new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
 
@@ -169,19 +206,25 @@ public class DB_GUI_Controller implements Initializable {
 
         if (selectedFile != null) {
             ObservableList<Person> persons = readPersonFromFile(selectedFile);
-            if(persons != null)
-                data.addAll(persons);
+            if (persons != null) {
+                for (Person p : persons) {
+                    cnUtil.insertUser(p);
+                    cnUtil.retrieveId(p);
+                    p.setId(cnUtil.retrieveId(p));
+                    data.add(p);
+                }
+            }
         }
 
     }
 
     // Method to read persons' data from a selected file and
     // return an ObservableList of Person objects.
-    private ObservableList<Person> readPersonFromFile(File file){
+    private ObservableList<Person> readPersonFromFile(File file) {
         ObservableList<Person> persons = FXCollections.observableArrayList();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            if(!reader.readLine().equals("firstName,lastName,department,major,email,imageURL")){
+            if (!reader.readLine().equals("firstName,lastName,department,major,email,imageURL")) {
                 System.out.println("Invalid Header,choose another CSV file");
                 return null;
             }
@@ -189,7 +232,7 @@ public class DB_GUI_Controller implements Initializable {
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data.length >= 7) {
-                    Person person = new Person(data[0], data[1], data[2],data[3],data[4],data[5]);
+                    Person person = new Person(data[0], data[1], data[2], data[3], data[4], data[5]);
                     persons.add(person);
                 }
             }
@@ -199,7 +242,7 @@ public class DB_GUI_Controller implements Initializable {
         return persons;
     }
 
-    private void editSelectedRecord() {
+    private void editSelectedRecord()  {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
 
         if (selectedPerson != null) {
@@ -210,8 +253,94 @@ public class DB_GUI_Controller implements Initializable {
             majorChoice.setValue(selectedPerson.getMajor());
             email.setText(selectedPerson.getEmail());
             imageURL.setText(selectedPerson.getImageURL());
+
+
+
+            String url = selectedPerson.getImageURL();
+            String sasToken = "sp=r&st=2024-11-22T22:43:30Z&se=2024-11-23T06:43:30Z&spr=https&sv=2022-11-02&sr=c&sig=c2io%2BEFq7fe%2BcT3CEd0YLm6EWbZnqirHtEFeJjOYlxQ%3D";
+            //if URL not in validity, set image view in defuel image
+            if(!isValidURL(url)) {
+                url = "https://csc311storagechen.blob.core.windows.net/media-files/profile.png";
+            }
+            String blobUrlWithSAS = url + "?" + sasToken;
+            img_view.setImage(new Image(blobUrlWithSAS));
+
+
         }
     }
+
+    private boolean isValidURL(String url) {
+        try {
+            new URL(url).toURI();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Set the cell factory for a table column so that it can validate the date format.
+     *
+     * @param column A table column that contains the date attribute of the Person object
+     * @param regex A regular expression used to validate the date format
+     */
+    private void setValidDate(TableColumn<Person, String> column, String regex) {
+        vailCellDate(column,regex);
+        addCellListener(column,regex);
+
+    }
+
+    private void vailCellDate(TableColumn<Person, String> column, String regex){
+        column.setCellFactory(cell -> new TextFieldTableCell<>(new DefaultStringConverter()) {
+            @Override
+            public void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                // If the cell is empty or the item is null, clear the text and style
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    if (item.trim().isEmpty() || !item.matches(regex)) {
+                        setStyle("-fx-border-color: red;-fx-border-width:2.0;");
+                    } else {
+                        setStyle("");
+                    }
+                }
+
+            }
+        });
+    }
+
+    // Handle edit commit events
+    private void addCellListener(TableColumn<Person, String> column, String regex){
+        column.setOnEditCommit(event -> {
+            String newValue = event.getNewValue();
+            // If the new value doesn't match the regular expression, it can not add
+            if (!newValue.matches(regex)) {
+                addBtn.setDisable(true);
+            }else {
+                addBtn.setDisable(!areAllCellsValid());
+            }
+
+
+        });
+    }
+
+    private boolean areAllCellsValid() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+        return isValidInput(selectedPerson.getFirstName(), nameRegex) &&
+                isValidInput(selectedPerson.getLastName(), nameRegex) &&
+                isValidInput(selectedPerson.getEmail(), emailRegex) &&
+                isValidInput(selectedPerson.getDepartment(), departmentRegex) &&
+                isValidInput(selectedPerson.getMajor(), majorRegex);
+    }
+
+    private boolean isValidInput(String input, String regex) {
+        return input == null || input.matches(regex);
+    }
+
+/********************************************/
     private void validateInput(TextArea textField, String regex, Text validationText) {
         if (!textField.getText().matches(regex)) {
             textField.setStyle("-fx-border-color: red;");
@@ -249,11 +378,6 @@ public class DB_GUI_Controller implements Initializable {
                 isValidInput(department.getText(), departmentRegex) &&
                 isValidInput(majorChoice.getValue(), majorRegex);
     }
-
-    private boolean isValidInput(String input, String regex) {
-        return input.matches(regex);
-    }
-
     @FXML
     private void handleAddButton() {
         // Validate input fields and show validation messages
@@ -263,14 +387,16 @@ public class DB_GUI_Controller implements Initializable {
     }
     @FXML
     protected void addNewRecord() {
-
-        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                majorChoice.getValue(), email.getText(), imageURL.getText());
+        Person p = tv.getSelectionModel().getSelectedItem();
+//        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
+//                majorChoice.getValue(), email.getText(), imageURL.getText());
         cnUtil.insertUser(p);
         cnUtil.retrieveId(p);
         p.setId(cnUtil.retrieveId(p));
-        data.add(p);
-        clearForm();
+        int i = data.indexOf(p);
+        data.set(i,p);
+        //data.add(p);
+        //clearForm();
 
     }
 
@@ -346,15 +472,51 @@ public class DB_GUI_Controller implements Initializable {
 
     @FXML
     protected void showImage() {
-        File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open image File");
+
+        File initialDirectory = new File("./src/main/resources/images");
+        if (initialDirectory.exists()) {
+            fileChooser.setInitialDirectory(initialDirectory);
+        }
+
+        File file = fileChooser.showOpenDialog(img_view.getScene().getWindow());
+
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
 
-            Task<String> uploadTask = createUploadTask(file, progressBar);
-            progressBar.progressProperty().bind(uploadTask.progressProperty());
-            uploadTask.setOnSucceeded(_ -> imageURL.setText(uploadTask.getValue()));
-            new Thread(uploadTask).start();
+            try {
+                Task<String> uploadTask = createUploadTask(file, progressBar);
+
+                progressBar.progressProperty().bind(uploadTask.progressProperty());
+                // The upload is successful
+                uploadTask.setOnSucceeded(event -> {
+                    System.out.println("successful");
+                    System.out.println(uploadTask.getValue());
+                    progressBar.setOpacity(0);
+                    progressBar.setDisable(true);
+                    imageURL.setText(uploadTask.getValue());
+                    editRecord();
+                });
+
+                // upload fails
+                uploadTask.setOnFailed(event -> {
+                    System.out.println("fail");
+                    System.out.println(uploadTask.getValue());
+                    progressBar.setOpacity(0);
+                    progressBar.setDisable(true);
+                });
+
+                new Thread(uploadTask).start();
+                progressBar.setOpacity(1);
+                progressBar.setDisable(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Upload failed");
+            }
         }
+
+
 
     }
 
@@ -368,6 +530,13 @@ public class DB_GUI_Controller implements Initializable {
                 progressBar.setDisable(false);
 
                 BlobClient blobClient = store.getContainerClient().getBlobClient(file.getName());
+                // Check if the file has already been uploaded
+                ObservableSet<String> urlSet = cnUtil.getURLSet();
+                if(urlSet.contains(blobClient.getBlobUrl())){
+                    //System.out.println("urlSet: " + blobClient.getBlobUrl());
+                    return blobClient.getBlobUrl();
+                }
+
                 long fileSize = Files.size(file.toPath());
                 long uploadedBytes = 0;
 
@@ -384,9 +553,11 @@ public class DB_GUI_Controller implements Initializable {
                         // Calculate and update progress as a percentage
                         int progress = (int) ((double) uploadedBytes / fileSize * 100);
                         updateProgress(progress, 100);
-
-
                     }
+                }catch (IOException e) {
+                    e.printStackTrace();
+                    updateMessage("call failed: " + e.getMessage());
+                    return null;
                 }
 
                 return blobClient.getBlobUrl();
@@ -405,7 +576,6 @@ public class DB_GUI_Controller implements Initializable {
         first_name.setText(p.getFirstName());
         last_name.setText(p.getLastName());
         department.setText(p.getDepartment());
-        //major.setText(p.getMajor());
         majorChoice.setValue(p.getMajor());
         email.setText(p.getEmail());
         imageURL.setText(p.getImageURL());
