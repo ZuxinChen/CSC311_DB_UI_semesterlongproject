@@ -15,8 +15,8 @@
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="File">
                             <items>
                                 <MenuItem fx:id="newItem" mnemonicParsing="false" onAction="#addRecord" styleClass="menu_items" text="New" />
-                        <MenuItem mnemonicParsing="false" onAction="#ImportCSV" text="Import CSV File" />
-                        <MenuItem mnemonicParsing="false" onAction="#ExportCSV" text="Export CSV File" />
+                                <MenuItem mnemonicParsing="false" onAction="#ImportCSV" styleClass="menu_items" text="Import CSV File" />
+                                <MenuItem mnemonicParsing="false" onAction="#ExportCSV" styleClass="menu_items" text="Export CSV File" />
                                 <MenuItem fx:id="ChangePic" mnemonicParsing="false" onAction="#showImage" styleClass="menu_items" text="Change Pic" />
                                 <MenuItem fx:id="logOut" mnemonicParsing="false" onAction="#logOut" styleClass="menu_items" text="Log out" />
                                 <MenuItem mnemonicParsing="false" onAction="#closeApplication" styleClass="menu_items" text="Exit Program" />
@@ -82,11 +82,11 @@
                                 <Insets left="10.0" right="10.0" top="5.0" />
                             </VBox.margin>
                         </TextField>
-                  <ChoiceBox fx:id="majorChoice" prefHeight="30.0" prefWidth="189.0">
+                  <ComboBox fx:id="majorChoice">
                      <VBox.margin>
                         <Insets left="10.0" right="10.0" top="5.0" />
                      </VBox.margin>
-                  </ChoiceBox>
+                  </ComboBox>
                         <TextField fx:id="email" promptText="Email" styleClass="text_field">
                             <VBox.margin>
                                 <Insets left="10.0" right="10.0" top="5.0" />

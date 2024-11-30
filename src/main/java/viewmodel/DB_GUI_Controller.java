@@ -15,14 +15,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.ChoiceBoxTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
@@ -33,13 +32,12 @@ import service.MyLogger;
 import service.UserSession;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class DB_GUI_Controller implements Initializable {
@@ -52,7 +50,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private ProgressBar progressBar;
     @FXML
-    private ChoiceBox<String> majorChoice;
+    private ComboBox<String> majorChoice;
     @FXML
     TextField first_name, last_name, department, email, imageURL;
 
@@ -71,13 +69,13 @@ public class DB_GUI_Controller implements Initializable {
     private final ObservableList<Person> data = cnUtil.getData();
     private final StorageUploader store = new StorageUploader();
 
-    private String nameRegex = "[A-Za-z]{2,25}";
-    private String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-    private String departmentRegex = ".{1,20}";
-    private String majorRegex = ".{1,20}";
+    private final String nameRegex = "[A-Za-z]{2,25}";
+    private final String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    private final String departmentRegex = ".{1,20}";
+    //private final String majorRegex = ".{1,20}";
 
-    enum majorOption {CS, CPIS, English}
-
+    //set choice box of major are CS, CPIS, English
+    ObservableList<String> majorList = FXCollections.observableArrayList("CS", "CPIS", "English");
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -91,13 +89,10 @@ public class DB_GUI_Controller implements Initializable {
             tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
             tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
             tv_department.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-            tv_major.setCellFactory(ChoiceBoxTableCell.forTableColumn(
-                    FXCollections.observableArrayList(Arrays.stream(majorOption.values())
-                                                            .map(Enum::name)
-                                                            .collect(Collectors.toList()))
-            ));
+            tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(majorList));
+            tv_major.setText(majorList.getFirst());
             tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-            tv_major.setText("CS");
+
 
             tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
@@ -108,7 +103,6 @@ public class DB_GUI_Controller implements Initializable {
             tv.setItems(data);
 
             tv.setEditable(true);
-
             // Add mouse click event handler to the table view
             tv.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
@@ -117,41 +111,39 @@ public class DB_GUI_Controller implements Initializable {
                         Person emptyPerson = new Person();
                         data.add(emptyPerson);
 
-                        tv.scrollTo(data.indexOf(emptyPerson));
-                        //tv.getSelectionModel().select(emptyPerson);
+                        //tv.scrollTo(data.indexOf(emptyPerson));
                         emptyPerson.setMajor("CS");
                         tv.refresh();
-                    }else{
-                        //if(selectedPerson.getId() != null) {
-                            editSelectedRecord();
-                            //editBtn.setDisable(false);
-                           // deleteBtn.setDisable(false);
-                       // }
-
+                    }else {
+                        editSelectedRecord();
                     }
-
 
                 }else if(event.getClickCount() == 1){
                     addBtn.setDisable(true);
                     editBtn.setDisable(true);
                     deleteBtn.setDisable(true);
+                    editSelectedRecord();
                 }
             });
 
 
             UserSession userSession = UserSession.getInstance();
-            if(userSession.getPrivileges().equals("None")){
-                deleteBtn.setVisible(false);
-                addBtn.setVisible(false);
-                editBtn.setVisible(false);
-                tv.setDisable(false);
-
-            }else if(userSession.getPrivileges().equals("Low")){
-                addBtn.setVisible(false);
-                editBtn.setVisible(false);
-
-            }else if(userSession.getPrivileges().equals("High")){
-                tv.setOnKeyPressed(event -> handleKeyPress(event));
+            if(userSession!= null) {
+                //String privileges = userSession.getPrivileges();
+                String privileges = "None";
+                switch (privileges) {
+                    case "None" -> {
+                        deleteBtn.setVisible(false);
+                        addBtn.setVisible(false);
+                        editBtn.setVisible(false);
+                        tv.setEditable(false);
+                    }
+                    case "Low" -> {
+                        addBtn.setVisible(false);
+                        editBtn.setVisible(false);
+                    }
+                    case "High" -> tv.setOnKeyPressed(this::handleKeyPress);
+                }
             }
 
 
@@ -168,14 +160,10 @@ public class DB_GUI_Controller implements Initializable {
             setValidDate(tv_email, emailRegex);
 
 
-            //set choice box of major are CS, CPIS, English
-            ObservableList<String> majorList =
-                    FXCollections.observableArrayList(Stream.of(majorOption.values())
-                                .map(Enum::name).toList());
-            majorChoice.setItems(majorList);
 
-            // Sets the default selection as CS
-            majorChoice.setValue(majorOption.CS.name());
+            majorChoice.getItems().setAll(majorList);
+            majorChoice.getSelectionModel().select(0);
+
 
 
         } catch (Exception e) {
@@ -322,11 +310,11 @@ public class DB_GUI_Controller implements Initializable {
             img_view.setImage(new Image(blobUrlWithSAS));
 
             if(selectedPerson.getId() !=null) {
-                addBtn.setDisable(!areAllFieldsValid());
-                deleteBtn.setDisable(!areAllFieldsValid());
-                editBtn.setDisable(!areAllFieldsValid());
+                addBtn.setDisable(areAllFieldsValid());
+                deleteBtn.setDisable(areAllFieldsValid());
+                editBtn.setDisable(areAllFieldsValid());
             }else {
-                addBtn.setDisable(!areAllFieldsValid());
+                addBtn.setDisable(areAllFieldsValid());
             }
 
         }
@@ -334,7 +322,8 @@ public class DB_GUI_Controller implements Initializable {
 
     private boolean isValidURL(String url) {
         try {
-            new URL(url).toURI();
+            URI uri = new URI(url);
+            uri.toURL();
             return true;
         } catch (Exception e) {
             return false;
@@ -421,26 +410,9 @@ public class DB_GUI_Controller implements Initializable {
     }
 
 /********************************************/
-    private void validateInput(TextArea textField, String regex, Text validationText) {
-        if (!textField.getText().matches(regex)) {
-            textField.setStyle("-fx-border-color: red;");
-            validationText.setText("Invalid input");
-            addBtn.setDisable(true);
-        } else {
-            textField.setStyle("");
-            validationText.setText("Valid"); // Clear validation message
-            addBtn.setDisable(!areAllFieldsValid());
-        }
-    }
-    private void addValidationListener(TextArea textField, String regex, Text validationText) {
-        textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            validateInput(textField, regex, validationText);
-        });
-    }
+
     private void addValidationListener(TextField textField, String regex) {
-        textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            validateInput(textField, regex);
-        });
+        textField.textProperty().addListener((observable, oldValue, newValue) -> validateInput(textField, regex));
     }
     private void validateInput(TextField textField, String regex) {
         if (!textField.getText().matches(regex)) {
@@ -448,23 +420,16 @@ public class DB_GUI_Controller implements Initializable {
             addBtn.setDisable(true);
         } else {
             textField.setStyle("");
-            addBtn.setDisable(!areAllFieldsValid());
+            addBtn.setDisable(areAllFieldsValid());
         }
     }
     private boolean areAllFieldsValid() {
-        return isValidInput(first_name.getText(), nameRegex) &&
-                isValidInput(last_name.getText(), nameRegex) &&
-                isValidInput(email.getText(), emailRegex) &&
-                isValidInput(department.getText(), departmentRegex) &&
-                isValidInput(majorChoice.getValue(), majorRegex);
+        return !isValidInput(first_name.getText(), nameRegex) ||
+                !isValidInput(last_name.getText(), nameRegex) ||
+                !isValidInput(email.getText(), emailRegex) ||
+                !isValidInput(department.getText(), departmentRegex);
     }
-    @FXML
-    private void handleAddButton() {
-        // Validate input fields and show validation messages
-        if (areAllFieldsValid()) {
-            // Your logic to handle the addition of the record goes here
-        }
-    }
+
     @FXML
     protected void addNewRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -500,9 +465,9 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void logOut(ActionEvent actionEvent) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/login.fxml"));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml")));
             Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").getFile());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).getFile());
             Stage window = (Stage) menuBar.getScene().getWindow();
             window.setScene(scene);
             window.show();
@@ -519,7 +484,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void displayAbout() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/about.fxml"));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/about.fxml")));
             Stage stage = new Stage();
             Scene scene = new Scene(root, 600, 500);
             stage.setScene(scene);
@@ -670,7 +635,7 @@ public class DB_GUI_Controller implements Initializable {
             Scene scene = menuBar.getScene();
             Stage stage = (Stage) scene.getWindow();
             stage.getScene().getStylesheets().clear();
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).toExternalForm());
             stage.setScene(scene);
             stage.show();
             System.out.println("light " + scene.getStylesheets());
@@ -685,7 +650,7 @@ public class DB_GUI_Controller implements Initializable {
             Stage stage = (Stage) menuBar.getScene().getWindow();
             Scene scene = stage.getScene();
             scene.getStylesheets().clear();
-            scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/darkTheme.css")).toExternalForm());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -714,13 +679,11 @@ public class DB_GUI_Controller implements Initializable {
             return null;
         });
         Optional<Results> optionalResult = dialog.showAndWait();
-        optionalResult.ifPresent((Results results) -> {
-            MyLogger.makeLog(
-                    results.fname + " " + results.lname + " " + results.major);
-        });
+        optionalResult.ifPresent((Results results) -> MyLogger.makeLog(
+                results.fname + " " + results.lname + " " + results.major));
     }
 
-    private static enum Major {Business, CSC, CPIS}
+    private enum Major {Business, CSC, CPIS}
 
     private static class Results {
 

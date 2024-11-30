@@ -41,7 +41,7 @@
 .menu_bar .label{
     -fx-background-color: black;
     -fx-font-size: 15 pt;
-        -fx-text-fill: white;
+    -fx-text-fill: white;
 }
 
 .menu_options .label{
@@ -57,9 +57,37 @@
 }
 
 .text_field {
+    -fx-pref-width: 200;
+    -fx-pref-height: 30;
     -fx-background-color: black;
     -fx-text-fill: white;
 }
+
+/*combo-box */
+.combo-box {
+    -fx-pref-width: 200;
+    -fx-pref-height: 30;
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+.combo-box .list-cell{
+    -fx-text-fill: white;
+    -fx-background-color: black;
+}
+.combo-box .list-view .list-cell {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+.combo-box .list-view .list-cell:hover {
+    -fx-background-color: #e0e0e0;
+    -fx-text-fill: black;
+}
+.combo-box .list-view .list-cell:selected {
+    -fx-background-color: #c5c5c5;
+    -fx-text-fill: black;
+}
+
 
 .progress-bar {
     -fx-accent: rgba(0, 138, 230, 0.85);
@@ -104,7 +132,11 @@
   -fx-border-color: #29292D;
   -fx-text-fill: lightgray;
   -fx-alignment: CENTER_LEFT;
+  -fx-border-width:0.0;
 
+}
+.table-row-cell:filled .cell{
+    -fx-border-width:0.3;
 }
 .table-row-cell:selected {
    -fx-background-color: whitesmoke;

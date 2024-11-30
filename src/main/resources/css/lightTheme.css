@@ -39,6 +39,15 @@
     -fx-background-color: #79dc05;
 
 }
+.text_field {
+    -fx-pref-width: 200;
+    -fx-pref-height: 30;
+}
+
+.combo-box {
+    -fx-pref-width: 200;
+    -fx-pref-height: 30;
+}
 
 .image_view{
     -fx-background-color: yellow;
@@ -80,11 +89,11 @@
   -fx-border-color: #888;
   -fx-text-fill: black;
   -fx-alignment: CENTER_LEFT;
-  -fx-border-width:0.0
+  -fx-border-width:0.0;
 
 }
 .table-row-cell:filled .cell{
-    -fx-border-width:0.3
+    -fx-border-width:0.3;
 }
 .table-row-cell:selected {
    -fx-background-color: whitesmoke;
