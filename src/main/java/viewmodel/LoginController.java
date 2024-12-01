@@ -8,6 +8,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -16,6 +17,7 @@ import javafx.util.Duration;
 import service.UserSession;
 import javafx.scene.control.TextField;
 
+import java.util.Objects;
 
 
 public class LoginController {
@@ -76,27 +78,38 @@ public class LoginController {
                 }
 
             } else {
-                try {
-                    Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
-                    Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
-                    Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-                    window.setScene(scene);
-                    window.show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                loginToInterface_gui(actionEvent);
             }
+        }else{
+            showAlert("There is no account, please register first");
         }
 
+    }
 
+    private void loginToInterface_gui(ActionEvent actionEvent){
+        try {
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/db_interface_gui.fxml")));
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).toExternalForm());
+            Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+            window.setScene(scene);
+            window.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void signUp(ActionEvent actionEvent) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/view/signUp.fxml"));
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/signUp.fxml")));
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).toExternalForm());
             Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);
             window.show();

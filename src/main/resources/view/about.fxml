@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TextArea layoutX="6.0" layoutY="51.0" prefHeight="343.0" prefWidth="584.0" text="Your text goes here " wrapText="true">
+      <TextArea layoutX="6.0" layoutY="51.0" prefHeight="343.0" prefWidth="584.0" text="Overview&#10;&#10;This program is a student register system that supports keyboard shortcuts, row editing, image uploading,and function customization based on user permissions. &#10;It aims to provide an intuitive and efficient user interface for users to manage and edit student data.&#10;&#10;Features&#10;&#10;- Keyboard Shortcut Support : Users can quickly perform common operations via keyboard shortcuts.&#10;- Row Editing: Directly edit row data within the table view to increase editing efficiency.&#10;- Image Uploading: Allows users to upload images and associate them with table data.&#10;- Dynamic Image Replacement: Automatically replaces the corresponding image based on the selected row.&#10;- Permission Management: Different users can use different functions based on their permissions." wrapText="true">
          <font>
             <Font name="System Bold" size="16.0" />
          </font>
       </TextArea>
-      <Label alignment="TOP_LEFT" layoutX="8.0" layoutY="11.0" prefHeight="44.0" prefWidth="542.0" text="Developer: MM mM">
+      <Label alignment="TOP_LEFT" layoutX="8.0" layoutY="11.0" prefHeight="44.0" prefWidth="542.0" text="Developer: ZuXin Chen">
          <font>
             <Font name="System Bold" size="26.0" />
          </font>

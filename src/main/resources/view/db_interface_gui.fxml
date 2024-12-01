@@ -38,7 +38,7 @@
                         </Menu>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="Help">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#displayAbout" styleClass="menu_items" text="Help" />
+                                <MenuItem mnemonicParsing="false" onAction="#displayHelp" styleClass="menu_items" text="Help" />
                         <MenuItem mnemonicParsing="false" onAction="#displayAbout" styleClass="menu_items" text="About" />
                             </items>
                         </Menu>
@@ -67,61 +67,69 @@
          <right>
                 <VBox prefHeight="540.0" prefWidth="202.0" styleClass="text_field_pane" BorderPane.alignment="CENTER">
                     <children>
-                        <TextField fx:id="first_name" promptText="First Name" styleClass="text_field">
-                            <VBox.margin>
-                                <Insets left="10.0" right="10.0" top="5.0" />
-                            </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="last_name" promptText="Last Name" styleClass="text_field">
-                            <VBox.margin>
-                                <Insets left="10.0" right="10.0" top="5.0" />
-                            </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="department" promptText="Department" styleClass="text_field">
-                            <VBox.margin>
-                                <Insets left="10.0" right="10.0" top="5.0" />
-                            </VBox.margin>
-                        </TextField>
-                  <ComboBox fx:id="majorChoice">
-                     <VBox.margin>
-                        <Insets left="10.0" right="10.0" top="5.0" />
-                     </VBox.margin>
-                  </ComboBox>
-                        <TextField fx:id="email" promptText="Email" styleClass="text_field">
-                            <VBox.margin>
-                                <Insets left="10.0" right="10.0" top="5.0" />
-                            </VBox.margin>
-                        </TextField>
-                        <TextField fx:id="imageURL" promptText="imageURL" styleClass="text_field">
-                            <VBox.margin>
-                                <Insets left="10.0" right="10.0" top="5.0" />
-                            </VBox.margin>
-                        </TextField>
+                  <VBox fx:id="textFieldPane">
+                     <children>
+                              <TextField fx:id="first_name" promptText="First Name" styleClass="text_field">
+                                  <VBox.margin>
+                                      <Insets left="10.0" right="10.0" top="5.0" />
+                                  </VBox.margin>
+                              </TextField>
+                              <TextField fx:id="last_name" promptText="Last Name" styleClass="text_field">
+                                  <VBox.margin>
+                                      <Insets left="10.0" right="10.0" top="5.0" />
+                                  </VBox.margin>
+                              </TextField>
+                              <TextField fx:id="department" promptText="Department" styleClass="text_field">
+                                  <VBox.margin>
+                                      <Insets left="10.0" right="10.0" top="5.0" />
+                                  </VBox.margin>
+                              </TextField>
+                        <ComboBox fx:id="majorChoice">
+                           <VBox.margin>
+                              <Insets left="10.0" right="10.0" top="5.0" />
+                           </VBox.margin>
+                        </ComboBox>
+                              <TextField fx:id="email" promptText="Email" styleClass="text_field">
+                                  <VBox.margin>
+                                      <Insets left="10.0" right="10.0" top="5.0" />
+                                  </VBox.margin>
+                              </TextField>
+                              <TextField fx:id="imageURL" promptText="imageURL" styleClass="text_field">
+                                  <VBox.margin>
+                                      <Insets left="10.0" right="10.0" top="5.0" />
+                                  </VBox.margin>
+                              </TextField>
+                     </children>
+                  </VBox>
                   <Label prefHeight="6.0" prefWidth="3.0" text=" ">
                      <VBox.margin>
                         <Insets bottom="40.0" right="20.0" top="40.0" />
                      </VBox.margin>
                   </Label>
-                        <Button minWidth="-Infinity" mnemonicParsing="false" onAction="#clearForm" styleClass="db_btn" text="Clear">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </VBox.margin>
-                        </Button>
-                        <Button fx:id="addBtn" mnemonicParsing="false" onAction="#addNewRecord" styleClass="db_btn" text="Add">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </VBox.margin>
-                        </Button>
-                        <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#deleteRecord" styleClass="db_btn" text="Delete">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </VBox.margin>
-                        </Button>
-                        <Button fx:id="editBtn" mnemonicParsing="false" onAction="#editRecord" styleClass="db_btn" text="Edit">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </VBox.margin>
-                        </Button>
+                  <VBox fx:id="buttonPane">
+                     <children>
+                              <Button fx:id="clearBtn" minWidth="-Infinity" mnemonicParsing="false" onAction="#clearForm" styleClass="db_btn" text="Clear">
+                                  <VBox.margin>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </VBox.margin>
+                              </Button>
+                              <Button fx:id="addBtn" mnemonicParsing="false" onAction="#addNewRecord" styleClass="db_btn" text="Add">
+                                  <VBox.margin>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </VBox.margin>
+                              </Button>
+                              <Button fx:id="editBtn" mnemonicParsing="false" onAction="#editRecord" styleClass="db_btn" text="Edit">
+                                  <VBox.margin>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </VBox.margin>
+                              </Button>
+                              <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#deleteRecord" styleClass="db_btn" text="Delete">
+                                  <VBox.margin>
+                                      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                  </VBox.margin>
+                              </Button>
+                     </children>
+                  </VBox>
                     </children>
                 </VBox>
          </right>

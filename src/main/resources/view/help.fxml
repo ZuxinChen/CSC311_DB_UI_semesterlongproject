@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TextArea layoutX="6.0" layoutY="51.0" prefHeight="343.0" prefWidth="584.0" text=" Instructions&#10;&#10;- Shortcut keys:&#10;   - `Ctrl + E`: Edit the current row.&#10;   - `Ctrl + R`: Clear all.&#10;   - `Ctrl + D`: Delete the current row&#10;   - `Ctrl + C`: Copy the data of the current cell&#10;&#10;- Row editing:&#10;   - Double-click a table cell to enter edit mode.&#10;   - Double-click a blank space to add a new row&#10;&#10;- Image upload and replacement:&#10;   - Click the avatar in the table to select an image file.&#10;   - After selecting one, the image will be automatically uploaded and replaced.&#10;&#10;- Permission management:&#10;   - High permissions can use all functions, including shortcuts, data addition, deletion, and modification.&#10;  - Low permissions can only use some functions, including data addition and modification.&#10;  - No permissions can modify data, only view data." wrapText="true">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </TextArea>
+      <Label alignment="TOP_LEFT" layoutX="8.0" layoutY="11.0" prefHeight="44.0" prefWidth="542.0" text="Developer: ZuXin Chen">
+         <font>
+            <Font name="System Bold" size="26.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

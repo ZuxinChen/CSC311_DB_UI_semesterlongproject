@@ -38,7 +38,7 @@ public class UserSession {
     //add lock already in getInstance(String userName,String password, String privileges)
     // it need to add lock
     public static UserSession getInstance(String userName,String password) {
-        return getInstance(userName, password, "NONE");
+        return getInstance(userName, password, "None");
     }
 
     public static UserSession getInstance(){

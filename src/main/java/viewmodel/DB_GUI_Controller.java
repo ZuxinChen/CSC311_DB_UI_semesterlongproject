@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -42,17 +43,15 @@ import java.util.ResourceBundle;
 
 public class DB_GUI_Controller implements Initializable {
     @FXML
-    private Button deleteBtn;
+    Button deleteBtn,editBtn,addBtn,clearBtn;
     @FXML
-    private Button editBtn;
+    ProgressBar progressBar;
     @FXML
-    private Button addBtn;
-    @FXML
-    private ProgressBar progressBar;
-    @FXML
-    private ComboBox<String> majorChoice;
+    ComboBox<String> majorChoice;
     @FXML
     TextField first_name, last_name, department, email, imageURL;
+    @FXML
+    VBox textFieldPane,buttonPane;
 
     @FXML
     ImageView img_view;
@@ -76,101 +75,84 @@ public class DB_GUI_Controller implements Initializable {
 
     //set choice box of major are CS, CPIS, English
     ObservableList<String> majorList = FXCollections.observableArrayList("CS", "CPIS", "English");
+    /**************initialize setting*************/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-
-            // Disable the "Add", "Delete" and "Edit" button initially
-            deleteBtn.setDisable(true);
-            editBtn.setDisable(true);
-            addBtn.setDisable(true);
-
-            // Set an editable cell factory
-            tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-            tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-            tv_department.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-            tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(majorList));
-            tv_major.setText(majorList.getFirst());
-            tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-
-
-            tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
-            tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
-            tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
-            tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
-            tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
-            tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
-            tv.setItems(data);
-
-            tv.setEditable(true);
-            // Add mouse click event handler to the table view
-            tv.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2) {
-                    Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-                    if(selectedPerson == null) {
-                        Person emptyPerson = new Person();
-                        data.add(emptyPerson);
-
-                        //tv.scrollTo(data.indexOf(emptyPerson));
-                        emptyPerson.setMajor("CS");
-                        tv.refresh();
-                    }else {
-                        editSelectedRecord();
-                    }
-
-                }else if(event.getClickCount() == 1){
-                    addBtn.setDisable(true);
-                    editBtn.setDisable(true);
-                    deleteBtn.setDisable(true);
-                    editSelectedRecord();
-                }
-            });
-
-
-            UserSession userSession = UserSession.getInstance();
-            if(userSession!= null) {
-                //String privileges = userSession.getPrivileges();
-                String privileges = "None";
-                switch (privileges) {
-                    case "None" -> {
-                        deleteBtn.setVisible(false);
-                        addBtn.setVisible(false);
-                        editBtn.setVisible(false);
-                        tv.setEditable(false);
-                    }
-                    case "Low" -> {
-                        addBtn.setVisible(false);
-                        editBtn.setVisible(false);
-                    }
-                    case "High" -> tv.setOnKeyPressed(this::handleKeyPress);
-                }
-            }
-
-
-            addValidationListener(first_name, nameRegex);
-            addValidationListener(last_name, nameRegex);
-            addValidationListener(email, emailRegex);
-            addValidationListener(department, departmentRegex);
-
-
-            //Listen to columns date with validation
-            setValidDate(tv_fn, nameRegex);
-            setValidDate(tv_ln, nameRegex);
-            setValidDate(tv_department, departmentRegex);
-            setValidDate(tv_email, emailRegex);
-
-
-
-            majorChoice.getItems().setAll(majorList);
-            majorChoice.getSelectionModel().select(0);
-
-
+            //initial setting
+            setTableView();
+            setOperationPane();
+            setUserSession();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+    //setting table view in initialize
+    private void setTableView(){
 
+        // Set an editable cell factory
+        tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        tv_department.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(majorList));
+        tv_major.setText(majorList.getFirst());
+        tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        tv.setEditable(true);
+
+        tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
+        tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
+        tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
+        tv.setItems(data);
+
+
+        //Listen to columns date with validation
+        setValidDate(tv_fn, nameRegex);
+        setValidDate(tv_ln, nameRegex);
+        setValidDate(tv_department, departmentRegex);
+        setValidDate(tv_email, emailRegex);
+
+    }
+    //setting button, combo box and text field in initialize
+    private void setOperationPane(){
+        // button
+        editBtn.setDisable(true);
+        addBtn.setDisable(true);
+        deleteBtn.setDisable(true);
+        //combo box
+        majorChoice.getItems().setAll(majorList);
+        majorChoice.getSelectionModel().select(0);
+        //text field listener
+        addValidationListener(first_name, nameRegex);
+        addValidationListener(last_name, nameRegex);
+        addValidationListener(email, emailRegex);
+        addValidationListener(department, departmentRegex);
+    }
+    //setting privileges by UserSession in initialize
+    private void setUserSession(){
+        UserSession userSession = UserSession.getInstance();
+        // if(userSession!= null) {
+        //String privileges = userSession.getPrivileges();
+        String privileges = "High";
+        switch (privileges) {
+            case "None" -> {
+                clearBtn.setVisible(false);
+                deleteBtn.setVisible(false);
+                addBtn.setVisible(false);
+                editBtn.setVisible(false);
+                tv.setEditable(false);
+            }
+            case "Low" -> deleteBtn.setVisible(false);
+
+            case "High" -> tv.setOnKeyPressed(this::handleKeyPress);
+        }
+        // }
+    }
+
+    /***************shortcut***********************/
     //shortcut key implication
     private void handleKeyPress(KeyEvent event){
         //shortcut key Ctrl + E : edit
@@ -202,18 +184,18 @@ public class DB_GUI_Controller implements Initializable {
         }
 
     }
+
+    /*******************CSV file************************/
     // Method to trigger the importing of a CSV file.
     @FXML
     void ImportCSV() {
         fileReader();
     }
-
     // Method to trigger the exporting of data to a CSV file.
     @FXML
     void ExportCSV() {
         fileWriter();
     }
-
     // Method to write data to a CSV file.
     private void fileWriter() {
         String CSV_FILE_PATH = "./src/main/resources/CSV/data.csv";
@@ -230,7 +212,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     // Method to read data from a CSV file using a file chooser dialog.
     private void fileReader() {
         FileChooser fileChooser = new FileChooser();
@@ -263,7 +244,6 @@ public class DB_GUI_Controller implements Initializable {
         }
 
     }
-
     // Method to read persons' data from a selected file and
     // return an ObservableList of Person objects.
     private ObservableList<Person> readPersonFromFile(File file) {
@@ -288,6 +268,38 @@ public class DB_GUI_Controller implements Initializable {
         return persons;
     }
 
+
+    /************ table view select*********/
+    @FXML
+    protected void selectedItemTV(MouseEvent event) {
+        if (event.getClickCount() == 2) {
+
+            if(tv.getSelectionModel().isEmpty()) {
+                Person emptyPerson = new Person();
+                data.add(emptyPerson);
+                tv.scrollTo(data.indexOf(emptyPerson));
+                emptyPerson.setMajor("CS");
+                tv.refresh();
+            }else {
+                clearForm();
+                tv.getSelectionModel().clearSelection();
+            }
+
+            deleteBtn.setDisable(!tv.getSelectionModel().isEmpty());
+            addBtn.setDisable(areAllFieldsValid());
+            editBtn.setDisable(areAllFieldsValid());
+
+        }else if(event.getClickCount() == 1){
+            if(!tv.getSelectionModel().isEmpty()) {
+                editSelectedRecord();
+                deleteBtn.setDisable(true);
+                editBtn.setDisable(true);
+                addBtn.setDisable(true);
+            }
+        }
+
+    }
+    //copy the date from table view to text field,and set image
     private void editSelectedRecord()  {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
 
@@ -301,25 +313,21 @@ public class DB_GUI_Controller implements Initializable {
             imageURL.setText(selectedPerson.getImageURL());
 
             String url = selectedPerson.getImageURL();
-            String sasToken = "sp=r&st=2024-11-22T22:43:30Z&se=2024-11-23T06:43:30Z&spr=https&sv=2022-11-02&sr=c&sig=c2io%2BEFq7fe%2BcT3CEd0YLm6EWbZnqirHtEFeJjOYlxQ%3D";
-            //if URL not in validity, set image view in defuel image
-            if(!isValidURL(url)) {
+            String sasToken = "sp=r&st=2024-12-01T02:54:11Z&se=2024-12-13T10:54:11Z&spr=https&sv=2022-11-02&sr=c&sig=urRRUBsgXqE6ls5rK5eDx7pKkH57TWp%2FvBRLiiwcrvw%3D";
+            //if URL not in validity or empty, set image view in defuel image
+            if(url.isEmpty() || !isValidURL(url)) {
                 url = "https://csc311storagechen.blob.core.windows.net/media-files/profile.png";
             }
             String blobUrlWithSAS = url + "?" + sasToken;
             img_view.setImage(new Image(blobUrlWithSAS));
 
-            if(selectedPerson.getId() !=null) {
-                addBtn.setDisable(areAllFieldsValid());
-                deleteBtn.setDisable(areAllFieldsValid());
-                editBtn.setDisable(areAllFieldsValid());
-            }else {
-                addBtn.setDisable(areAllFieldsValid());
+            //if it is a new item without add to database
+            if(selectedPerson.getId() ==null) {
+                editBtn.setDisable(true);
             }
 
         }
     }
-
     private boolean isValidURL(String url) {
         try {
             URI uri = new URI(url);
@@ -330,18 +338,14 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
-    /**
-     * Set the cell factory for a table column so that it can validate the date format.
-     *
-     * @param column A table column that contains the date attribute of the Person object
-     * @param regex A regular expression used to validate the date format
-     */
+    /*****************table view cell setting************************/
+
+    //Set the cell factory for a table column so that it can validate the date format.
     private void setValidDate(TableColumn<Person, String> column, String regex) {
         vailCellDate(column,regex);
         addCellListener(column,regex);
 
     }
-
     private void vailCellDate(TableColumn<Person, String> column, String regex){
         column.setCellFactory(cell -> new TextFieldTableCell<>(new DefaultStringConverter()) {
             @Override
@@ -363,7 +367,6 @@ public class DB_GUI_Controller implements Initializable {
             }
         });
     }
-
     // Handle edit commit events
     private void addCellListener(TableColumn<Person, String> column, String regex){
         column.setOnEditCommit(event -> {
@@ -395,21 +398,17 @@ public class DB_GUI_Controller implements Initializable {
             addBtn.setDisable(!areAllCellsValid());
         });
     }
-
     private boolean areAllCellsValid() {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
         return isValidInput(selectedPerson.getFirstName(), nameRegex) &&
                 isValidInput(selectedPerson.getLastName(), nameRegex) &&
                 isValidInput(selectedPerson.getEmail(), emailRegex) &&
                 isValidInput(selectedPerson.getDepartment(), departmentRegex);
-                //isValidInput(selectedPerson.getMajor(), majorRegex);
+
     }
 
-    private boolean isValidInput(String input, String regex) {
-        return input.matches(regex);
-    }
 
-/********************************************/
+    /*****************text field setting************************/
 
     private void addValidationListener(TextField textField, String regex) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> validateInput(textField, regex));
@@ -418,9 +417,11 @@ public class DB_GUI_Controller implements Initializable {
         if (!textField.getText().matches(regex)) {
             textField.setStyle("-fx-border-color: red;");
             addBtn.setDisable(true);
+            editBtn.setDisable(true);
         } else {
             textField.setStyle("");
             addBtn.setDisable(areAllFieldsValid());
+            editBtn.setDisable(areAllFieldsValid());
         }
     }
     private boolean areAllFieldsValid() {
@@ -429,7 +430,11 @@ public class DB_GUI_Controller implements Initializable {
                 !isValidInput(email.getText(), emailRegex) ||
                 !isValidInput(department.getText(), departmentRegex);
     }
+    private boolean isValidInput(String input, String regex) {
+        return input.matches(regex);
+    }
 
+    /****************button********************/
     @FXML
     protected void addNewRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -451,7 +456,6 @@ public class DB_GUI_Controller implements Initializable {
         }
 
     }
-
     @FXML
     protected void clearForm() {
         first_name.setText("");
@@ -460,40 +464,12 @@ public class DB_GUI_Controller implements Initializable {
         majorChoice.setValue("CS");
         email.setText("");
         imageURL.setText("");
-    }
 
-    @FXML
-    protected void logOut(ActionEvent actionEvent) {
-        try {
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml")));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).getFile());
-            Stage window = (Stage) menuBar.getScene().getWindow();
-            window.setScene(scene);
-            window.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        //not allow after clear all
+        addBtn.setDisable(true);
+        editBtn.setDisable(true);
+        deleteBtn.setDisable(true);
     }
-
-    @FXML
-    protected void closeApplication() {
-        System.exit(0);
-    }
-
-    @FXML
-    protected void displayAbout() {
-        try {
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/about.fxml")));
-            Stage stage = new Stage();
-            Scene scene = new Scene(root, 600, 500);
-            stage.setScene(scene);
-            stage.showAndWait();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     protected void editRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -511,8 +487,6 @@ public class DB_GUI_Controller implements Initializable {
             System.out.println("No item selected for editing.");
         }
     }
-
-
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
@@ -522,6 +496,48 @@ public class DB_GUI_Controller implements Initializable {
         tv.getSelectionModel().select(index);
     }
 
+    /*****************menu bar********************/
+    @FXML
+    protected void logOut() {
+        try {
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml")));
+            Scene scene = new Scene(root, 900, 600);
+            scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).getFile());
+            Stage window = (Stage) menuBar.getScene().getWindow();
+            window.setScene(scene);
+            window.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    protected void closeApplication() {
+        System.exit(0);
+    }
+    @FXML
+    protected void displayAbout() {
+        try {
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/about.fxml")));
+            Stage stage = new Stage();
+            Scene scene = new Scene(root, 600, 500);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    protected void displayHelp() {
+        try {
+            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/help.fxml")));
+            Stage stage = new Stage();
+            Scene scene = new Scene(root, 600, 500);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     protected void showImage() {
         FileChooser fileChooser = new FileChooser();
@@ -568,9 +584,6 @@ public class DB_GUI_Controller implements Initializable {
 
 
     }
-
-
-
     private Task<String> createUploadTask(File file, ProgressBar progressBar) {
         return new Task<>() {
             @Override
@@ -614,22 +627,6 @@ public class DB_GUI_Controller implements Initializable {
         };
     }
 
-    @FXML
-    protected void addRecord() {
-        showSomeone();
-    }
-
-    @FXML
-    protected void selectedItemTV(MouseEvent mouseEvent) {
-        Person p = tv.getSelectionModel().getSelectedItem();
-        first_name.setText(p.getFirstName());
-        last_name.setText(p.getLastName());
-        department.setText(p.getDepartment());
-        majorChoice.setValue(p.getMajor());
-        email.setText(p.getEmail());
-        imageURL.setText(p.getImageURL());
-    }
-
     public void lightTheme(ActionEvent actionEvent) {
         try {
             Scene scene = menuBar.getScene();
@@ -644,7 +641,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     public void darkTheme(ActionEvent actionEvent) {
         try {
             Stage stage = (Stage) menuBar.getScene().getWindow();
@@ -656,6 +652,10 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    @FXML
+    protected void addRecord() {
+        showSomeone();
+    }
     public void showSomeone() {
         Dialog<Results> dialog = new Dialog<>();
         dialog.setTitle("New User");
@@ -682,9 +682,7 @@ public class DB_GUI_Controller implements Initializable {
         optionalResult.ifPresent((Results results) -> MyLogger.makeLog(
                 results.fname + " " + results.lname + " " + results.major));
     }
-
     private enum Major {Business, CSC, CPIS}
-
     private static class Results {
 
         String fname;

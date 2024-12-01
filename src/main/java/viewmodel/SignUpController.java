@@ -14,10 +14,8 @@ import javafx.stage.Stage;
 import javafx.fxml.FXML;
 import service.UserSession;
 import javafx.scene.control.TextField;
-import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.stream.Stream;
 
 public class SignUpController implements Initializable {
     @FXML
@@ -29,22 +27,21 @@ public class SignUpController implements Initializable {
     @FXML
     private TextField userName;
 
-    enum level{High, low, NONE}
 
     private String userNameRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.edu$";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle){
-        ObservableList<String> levelList =
-                FXCollections.observableArrayList(Stream.of(level.values())
-                        .map(Enum::name).toList());
+        ObservableList<String> levelList = FXCollections.observableArrayList("High", "Low", "None");
         privileges.setItems(levelList);
-        privileges.setValue("High");
+        privileges.setValue(levelList.getFirst());
     }
 
-    public void createNewAccount(ActionEvent actionEvent) {
+    @FXML
+    public void createNewAccount() {
         if(!userName.getText().matches(userNameRegex)){
             userName.setText("");
+            password.setText("");
         }else {
             UserSession.getInstance(userName.getText(), password.getText(), privileges.getValue());
 
@@ -53,7 +50,7 @@ public class SignUpController implements Initializable {
             alert.showAndWait();
         }
     }
-
+    @FXML
     public void goBack(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/login.fxml"));
