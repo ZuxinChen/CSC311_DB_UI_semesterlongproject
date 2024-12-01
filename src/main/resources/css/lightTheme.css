@@ -8,11 +8,11 @@
     -fx-alignment: CENTER;
     -fx-background-radius: 10;
     -fx-pref-width: 200px;
-    -fx-pref-height: 50px;
+    -fx-pref-height: 40px;
 }
 
 .left_pane {
-    -fx-background-color: #a73;
+    -fx-background-color: #79dc05;
     -fx-pref-width: 130px;
     -fx-pref-height: 600px;
 }
@@ -32,6 +32,8 @@
 }
 
 .anchor_pane {
+    -fx-pref-width: 200;
+    -fx-pref-height: 50;
     -fx-background-color: #a73;
 }
 
@@ -42,6 +44,11 @@
 .text_field {
     -fx-pref-width: 200;
     -fx-pref-height: 30;
+}
+.message-box{
+    -fx-pref-width: 200;
+    -fx-pref-height: 50;
+    -fx-background-color: #79dc05;
 }
 
 .combo-box {

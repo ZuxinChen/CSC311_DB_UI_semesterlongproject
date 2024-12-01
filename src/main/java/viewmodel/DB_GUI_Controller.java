@@ -6,10 +6,8 @@ import dao.StorageUploader;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -26,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.DefaultStringConverter;
+import model.BlobInfo;
 import model.Person;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -36,9 +35,11 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 
 public class DB_GUI_Controller implements Initializable {
@@ -47,11 +48,13 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     ProgressBar progressBar;
     @FXML
-    ComboBox<String> majorChoice;
+    ComboBox<String> positionChoice;
     @FXML
     TextField first_name, last_name, department, email, imageURL;
     @FXML
     VBox textFieldPane,buttonPane;
+    @FXML
+    private Label messageBox;
 
     @FXML
     ImageView img_view;
@@ -62,7 +65,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private TableColumn<Person, Integer> tv_id;
     @FXML
-    private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
+    private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_position, tv_email;
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
@@ -71,10 +74,14 @@ public class DB_GUI_Controller implements Initializable {
     private final String nameRegex = "[A-Za-z]{2,25}";
     private final String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     private final String departmentRegex = ".{1,20}";
-    //private final String majorRegex = ".{1,20}";
 
-    //set choice box of major are CS, CPIS, English
-    ObservableList<String> majorList = FXCollections.observableArrayList("CS", "CPIS", "English");
+    //set choice box of position are Circulation Librarian,Reference Librarian, Technical Services Librarian,Children's Librarian,Archivist,
+    ObservableList<String> positionList =
+            FXCollections.observableArrayList("Circulation Librarian",
+                                                        "Reference Librarian",
+                                                        "Technical Services Librarian",
+                                                        "Children's Librarian",
+                                                        "Archivist");
     /**************initialize setting*************/
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -95,8 +102,7 @@ public class DB_GUI_Controller implements Initializable {
         tv_fn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
         tv_ln.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
         tv_department.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-        tv_major.setCellFactory(ComboBoxTableCell.forTableColumn(majorList));
-        tv_major.setText(majorList.getFirst());
+        tv_position.setCellFactory(ComboBoxTableCell.forTableColumn(positionList));
         tv_email.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
         tv.setEditable(true);
 
@@ -104,7 +110,7 @@ public class DB_GUI_Controller implements Initializable {
         tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
-        tv_major.setCellValueFactory(new PropertyValueFactory<>("major"));
+        tv_position.setCellValueFactory(new PropertyValueFactory<>("position"));
         tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
         tv.setItems(data);
 
@@ -115,6 +121,7 @@ public class DB_GUI_Controller implements Initializable {
         setValidDate(tv_department, departmentRegex);
         setValidDate(tv_email, emailRegex);
 
+
     }
     //setting button, combo box and text field in initialize
     private void setOperationPane(){
@@ -123,8 +130,8 @@ public class DB_GUI_Controller implements Initializable {
         addBtn.setDisable(true);
         deleteBtn.setDisable(true);
         //combo box
-        majorChoice.getItems().setAll(majorList);
-        majorChoice.getSelectionModel().select(0);
+        positionChoice.getItems().setAll(positionList);
+        positionChoice.getSelectionModel().select(0);
         //text field listener
         addValidationListener(first_name, nameRegex);
         addValidationListener(last_name, nameRegex);
@@ -202,14 +209,16 @@ public class DB_GUI_Controller implements Initializable {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH));
              CSVPrinter csvPrinter = new CSVPrinter(writer,
                      CSVFormat.DEFAULT.withHeader("firstName", "lastName",
-                             "department", "major", "email", "imageURL"))) {
+                             "department", "position", "email", "imageURL"))) {
             for (Person p : data) {
                 csvPrinter.printRecord(p.getFirstName(), p.getLastName(),
-                        p.getDepartment(), p.getMajor(), p.getEmail(), p.getImageURL());
+                        p.getDepartment(), p.getPosition(), p.getEmail(), p.getImageURL());
             }
             csvPrinter.flush();
+            printMessage("writing into CSV file successful");
         } catch (IOException e) {
             e.printStackTrace();
+            printMessage("writing into CSV file fail");
         }
     }
     // Method to read data from a CSV file using a file chooser dialog.
@@ -232,40 +241,35 @@ public class DB_GUI_Controller implements Initializable {
         File selectedFile = fileChooser.showOpenDialog(mainStage);
 
         if (selectedFile != null) {
-            ObservableList<Person> persons = readPersonFromFile(selectedFile);
-            if (persons != null) {
-                for (Person p : persons) {
-                    cnUtil.insertUser(p);
-                    cnUtil.retrieveId(p);
-                    p.setId(cnUtil.retrieveId(p));
-                    data.add(p);
-                }
-            }
+            readPersonFromFile(selectedFile);
         }
 
     }
     // Method to read persons' data from a selected file and
     // return an ObservableList of Person objects.
-    private ObservableList<Person> readPersonFromFile(File file) {
-        ObservableList<Person> persons = FXCollections.observableArrayList();
+    private void readPersonFromFile(File file) {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            if (!reader.readLine().equals("firstName,lastName,department,major,email,imageURL")) {
-                System.out.println("Invalid Header,choose another CSV file");
-                return null;
+            if (!reader.readLine().equals("firstName,lastName,department,position,email,imageURL")) {
+                printMessage("Invalid Header,choose another CSV file");
+                return;
             }
 
+            List<String> emailList = data.stream().map(Person::getEmail).toList();
+
             while ((line = reader.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length >= 7) {
-                    Person person = new Person(data[0], data[1], data[2], data[3], data[4], data[5]);
-                    persons.add(person);
+
+                String[] info = line.split(",");
+                if (info.length <= 6 && !emailList.contains(info[4])) {
+                    Person person = new Person(info[0], info[1], info[2], info[3], info[4], info[5]);
+                    data.add(person);
                 }
             }
+            printMessage("reading CSV file successful");
         } catch (IOException e) {
             e.printStackTrace();
+            printMessage("reading CSV file fail");
         }
-        return persons;
     }
 
 
@@ -278,16 +282,16 @@ public class DB_GUI_Controller implements Initializable {
                 Person emptyPerson = new Person();
                 data.add(emptyPerson);
                 tv.scrollTo(data.indexOf(emptyPerson));
-                emptyPerson.setMajor("CS");
+                emptyPerson.setPosition(positionList.getFirst());
                 tv.refresh();
             }else {
-                clearForm();
-                tv.getSelectionModel().clearSelection();
+                editSelectedRecord();
+                deleteBtn.setDisable(tv.getSelectionModel().isEmpty());
+                addBtn.setDisable(areAllFieldsValid());
+                editBtn.setDisable(areAllFieldsValid());
             }
+            tv.getSelectionModel().clearSelection();
 
-            deleteBtn.setDisable(!tv.getSelectionModel().isEmpty());
-            addBtn.setDisable(areAllFieldsValid());
-            editBtn.setDisable(areAllFieldsValid());
 
         }else if(event.getClickCount() == 1){
             if(!tv.getSelectionModel().isEmpty()) {
@@ -302,13 +306,13 @@ public class DB_GUI_Controller implements Initializable {
     //copy the date from table view to text field,and set image
     private void editSelectedRecord()  {
         Person selectedPerson = tv.getSelectionModel().getSelectedItem();
-
+        clearForm();
         if (selectedPerson != null) {
             // Populate the form with the selected person's data for editing
             first_name.setText(selectedPerson.getFirstName());
             last_name.setText(selectedPerson.getLastName());
             department.setText(selectedPerson.getDepartment());
-            majorChoice.setValue(selectedPerson.getMajor());
+            positionChoice.setValue(selectedPerson.getPosition());
             email.setText(selectedPerson.getEmail());
             imageURL.setText(selectedPerson.getImageURL());
 
@@ -389,8 +393,8 @@ public class DB_GUI_Controller implements Initializable {
                     case "Department":
                         selectedPerson.setDepartment(newValue);
                         break;
-                    case "Major":
-                        selectedPerson.setMajor(newValue);
+                    case "Position":
+                        selectedPerson.setPosition(newValue);
                         break;
                 }
             }
@@ -440,7 +444,7 @@ public class DB_GUI_Controller implements Initializable {
         Person p = tv.getSelectionModel().getSelectedItem();
         if(p == null) {
             Person newP = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                    majorChoice.getValue(), email.getText(), imageURL.getText());
+                    positionChoice.getValue(), email.getText(), imageURL.getText());
             cnUtil.insertUser(newP);
             cnUtil.retrieveId(newP);
             newP.setId(cnUtil.retrieveId(newP));
@@ -455,13 +459,15 @@ public class DB_GUI_Controller implements Initializable {
             data.set(i,p);
         }
 
+        printMessage("A new record was adding successfully.");
+
     }
     @FXML
     protected void clearForm() {
         first_name.setText("");
         last_name.setText("");
         department.setText("");
-        majorChoice.setValue("CS");
+        positionChoice.setValue("CS");
         email.setText("");
         imageURL.setText("");
 
@@ -469,6 +475,8 @@ public class DB_GUI_Controller implements Initializable {
         addBtn.setDisable(true);
         editBtn.setDisable(true);
         deleteBtn.setDisable(true);
+
+        printMessage("");
     }
     @FXML
     protected void editRecord() {
@@ -477,23 +485,32 @@ public class DB_GUI_Controller implements Initializable {
         if (p != null &&p.getId() != null) {
             int index = data.indexOf(p);
             Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                    majorChoice.getValue(), email.getText(), imageURL.getText());
+                    positionChoice.getValue(), email.getText(), imageURL.getText());
             cnUtil.editUser(p.getId(), p2);
             data.remove(p);
             data.add(index, p2);
             tv.getSelectionModel().select(index);
+
+            printMessage("Your selected for editing is successful.");
         } else {
             // Handle the case where no item is selected (display a message, log, etc.)
-            System.out.println("No item selected for editing.");
+            printMessage("No item selected for editing.");
         }
     }
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-        int index = data.indexOf(p);
-        cnUtil.deleteRecord(p);
-        data.remove(index);
-        tv.getSelectionModel().select(index);
+        if(p != null) {
+            if (p.getId() != null) {
+                int index = data.indexOf(p);
+                cnUtil.deleteRecord(p);
+                data.remove(index);
+                tv.getSelectionModel().select(index);
+            } else {
+                data.remove(p);
+            }
+            printMessage("Your deleting is successful.");
+        }
     }
 
     /*****************menu bar********************/
@@ -501,7 +518,7 @@ public class DB_GUI_Controller implements Initializable {
     protected void logOut() {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml")));
-            Scene scene = new Scene(root, 900, 600);
+            Scene scene = new Scene(root);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).getFile());
             Stage window = (Stage) menuBar.getScene().getWindow();
             window.setScene(scene);
@@ -519,7 +536,7 @@ public class DB_GUI_Controller implements Initializable {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/about.fxml")));
             Stage stage = new Stage();
-            Scene scene = new Scene(root, 600, 500);
+            Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
         } catch (Exception e) {
@@ -531,7 +548,7 @@ public class DB_GUI_Controller implements Initializable {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/help.fxml")));
             Stage stage = new Stage();
-            Scene scene = new Scene(root, 600, 500);
+            Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.showAndWait();
         } catch (Exception e) {
@@ -562,14 +579,21 @@ public class DB_GUI_Controller implements Initializable {
                     progressBar.setOpacity(0);
                     progressBar.setDisable(true);
                     Person p = tv.getSelectionModel().getSelectedItem();
-                    p.setImageURL(uploadTask.getValue());
-                    editSelectedRecord();
+                    if(p!=null) {
+                        p.setImageURL(uploadTask.getValue());
+                        editSelectedRecord();
+                    }
                 });
 
                 // upload fails
                 uploadTask.setOnFailed(event -> {
                     progressBar.setOpacity(0);
                     progressBar.setDisable(true);
+                    Person p = tv.getSelectionModel().getSelectedItem();
+                    if(p!=null) {
+                        p.setImageURL(uploadTask.getValue());
+                        editSelectedRecord();
+                    }
                 });
 
                 new Thread(uploadTask).start();
@@ -577,7 +601,7 @@ public class DB_GUI_Controller implements Initializable {
                 progressBar.setDisable(false);
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Upload failed");
+                printMessage("Upload file failed");
             }
         }
 
@@ -590,14 +614,16 @@ public class DB_GUI_Controller implements Initializable {
             protected String call() throws Exception {
                 progressBar.setOpacity(1);
                 progressBar.setDisable(false);
-
-                BlobClient blobClient = store.getContainerClient().getBlobClient(file.getName());
+                String filePath = file.getPath();
+                String blobName = file.getName();
                 // Check if the file has already been uploaded
-                ObservableSet<String> urlSet = cnUtil.getURLSet();
-                if(urlSet.contains(blobClient.getBlobUrl())){
-                    //System.out.println("urlSet: " + blobClient.getBlobUrl());
-                    return blobClient.getBlobUrl();
+                ObservableList<BlobInfo> blobInfos = store.listBlobInfos();
+                for(BlobInfo info:blobInfos){
+                    if(info.getName().equals(blobName)){
+                        return info.getUrl();
+                    }
                 }
+                BlobClient blobClient = store.uploadFile(filePath, blobName);
 
                 long fileSize = Files.size(file.toPath());
                 long uploadedBytes = 0;
@@ -619,6 +645,7 @@ public class DB_GUI_Controller implements Initializable {
                 }catch (IOException e) {
                     e.printStackTrace();
                     updateMessage("call failed: " + e.getMessage());
+                    printMessage("call failed");
                     return null;
                 }
 
@@ -694,6 +721,11 @@ public class DB_GUI_Controller implements Initializable {
             this.lname = date;
             this.major = venue;
         }
+    }
+
+    private void printMessage(String message){
+        messageBox.setWrapText(true);
+        messageBox.setText(message);
     }
 
 }

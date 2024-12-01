@@ -5,7 +5,7 @@ public class Person {
     private String firstName;
     private String lastName;
     private String department;
-    private String major;
+    private String position;
     private String email;
     private String imageURL;
 
@@ -13,26 +13,26 @@ public class Person {
         this.firstName = "";
         this.lastName = "";
         this.department = "";
-        this.major = "";
+        this.position = "";
         this.email = "";
         this.imageURL = "";
     }
 
-    public Person(String firstName, String lastName, String department, String major, String email,  String imageURL) {
+    public Person(String firstName, String lastName, String department, String position, String email, String imageURL) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
-        this.major = major;
+        this.position = position;
         this.email = email;
         this.imageURL = imageURL;
     }
 
-    public Person(Integer id, String firstName, String lastName, String department, String major, String email,  String imageURL) {
+    public Person(Integer id, String firstName, String lastName, String department, String position, String email, String imageURL) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
-        this.major = major;
+        this.position = position;
         this.email = email;
         this.imageURL = imageURL;
     }
@@ -72,12 +72,12 @@ public class Person {
     }
 
 
-    public String getMajor() {
-        return major;
+    public String getPosition() {
+        return position;
     }
 
-    public void setMajor(String major) {
-        this.major = major;
+    public void setPosition(String position) {
+        this.position = position;
     }
 
 
@@ -104,7 +104,7 @@ public class Person {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", department='" + department + '\'' +
-                ", major='" + major + '\'' +
+                ", position='" + position + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }

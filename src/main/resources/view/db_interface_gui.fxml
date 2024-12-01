@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -8,15 +9,16 @@
 
 <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="920.0" styleClass="anchor_pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.DB_GUI_Controller">
     <children>
-        <BorderPane fx:id="borderPane" layoutX="-2.0" layoutY="-3.0" prefHeight="597.0" prefWidth="908.0">
+        <BorderPane fx:id="borderPane" layoutX="-2.0" layoutY="-3.0" prefHeight="600.0" prefWidth="920.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <top>
                 <MenuBar fx:id="menuBar" prefHeight="28.0" prefWidth="913.0" styleClass="menu_bar" BorderPane.alignment="CENTER">
                     <menus>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="File">
                             <items>
                                 <MenuItem fx:id="newItem" mnemonicParsing="false" onAction="#addRecord" styleClass="menu_items" text="New" />
-                                <MenuItem mnemonicParsing="false" onAction="#ImportCSV" styleClass="menu_items" text="Import CSV File" />
-                                <MenuItem mnemonicParsing="false" onAction="#ExportCSV" styleClass="menu_items" text="Export CSV File" />
+                                <MenuItem mnemonicParsing="false" onAction="#ImportCSV" styleClass="menu_items" text="Import CSV" />
+                                <MenuItem mnemonicParsing="false" onAction="#ExportCSV" styleClass="menu_items" text="Export CSV" />
+                        <MenuItem mnemonicParsing="false" onAction="#GenerateReport" styleClass="menu_items" text="Generate Report" />
                                 <MenuItem fx:id="ChangePic" mnemonicParsing="false" onAction="#showImage" styleClass="menu_items" text="Change Pic" />
                                 <MenuItem fx:id="logOut" mnemonicParsing="false" onAction="#logOut" styleClass="menu_items" text="Log out" />
                                 <MenuItem mnemonicParsing="false" onAction="#closeApplication" styleClass="menu_items" text="Exit Program" />
@@ -62,7 +64,7 @@
                 </VBox>
             </left>
             <bottom>
-                <HBox prefHeight="30.0" prefWidth="892.0" styleClass="admin_section" BorderPane.alignment="CENTER" />
+            <VBox prefHeight="25.0" prefWidth="916.0" />
             </bottom>
          <right>
                 <VBox prefHeight="540.0" prefWidth="202.0" styleClass="text_field_pane" BorderPane.alignment="CENTER">
@@ -84,7 +86,7 @@
                                       <Insets left="10.0" right="10.0" top="5.0" />
                                   </VBox.margin>
                               </TextField>
-                        <ComboBox fx:id="majorChoice">
+                        <ComboBox fx:id="positionChoice">
                            <VBox.margin>
                               <Insets left="10.0" right="10.0" top="5.0" />
                            </VBox.margin>
@@ -101,9 +103,9 @@
                               </TextField>
                      </children>
                   </VBox>
-                  <Label prefHeight="6.0" prefWidth="3.0" text=" ">
+                  <Label fx:id="messageBox" prefHeight="50.0" prefWidth="257.0" styleClass="message-box" text=" " textFill="WHITE">
                      <VBox.margin>
-                        <Insets bottom="40.0" right="20.0" top="40.0" />
+                        <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
                      </VBox.margin>
                   </Label>
                   <VBox fx:id="buttonPane">
@@ -134,13 +136,13 @@
                 </VBox>
          </right>
          <center>
-                <TableView fx:id="tv" editable="true" onMouseClicked="#selectedItemTV" prefHeight="539.0" prefWidth="566.0" styleClass="table_view" BorderPane.alignment="CENTER">
+                <TableView fx:id="tv" editable="true" onMousePressed="#selectedItemTV" prefHeight="539.0" prefWidth="566.0" styleClass="table_view" BorderPane.alignment="CENTER">
                     <columns>
                         <TableColumn fx:id="tv_id" prefWidth="42.0" styleClass="table_columns" text="ID" />
-                        <TableColumn fx:id="tv_fn" prefWidth="117.0" styleClass="table_columns" text="First Name" />
-                        <TableColumn fx:id="tv_ln" prefWidth="93.0" styleClass="table_columns" text="Last Name" />
-                        <TableColumn fx:id="tv_department" prefWidth="122.0" styleClass="table_columns" text="Department" />
-                        <TableColumn fx:id="tv_major" prefWidth="84.0" styleClass="table_columns" text="Major" />
+                        <TableColumn fx:id="tv_fn" prefWidth="94.0" styleClass="table_columns" text="First Name" />
+                        <TableColumn fx:id="tv_ln" prefWidth="95.0" styleClass="table_columns" text="Last Name" />
+                        <TableColumn fx:id="tv_department" prefWidth="101.0" styleClass="table_columns" text="Department" />
+                        <TableColumn fx:id="tv_position" prefWidth="126.0" styleClass="table_columns" text="Position" />
                         <TableColumn fx:id="tv_email" prefWidth="111.0" styleClass="table_columns" text="Email" />
                     </columns>
                 </TableView>

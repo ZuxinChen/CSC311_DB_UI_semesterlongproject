@@ -1,6 +1,11 @@
-firstName,lastName,department,major,email,imageURL
-John,Doe,CS,Artificial Intelligence,john.doe@example.com,https://example.com/images/johndoe.jpg
-Jane,Smith,CS,jane.smith@university.edu,https://university.edu/images/janesmith.png
-Bob,Johnson,CPIS,bob.johnson@finance.com,https://finance.com/images/bobj.png
-Alice,Brown,English,Organic Chemistry,a.brown@chem.org,https://chem.org/images/aliceb.jpg
-Mike,Wilson,English,American History,mike.wilson@history.net,https://history.net/images/mikew.png
+firstName,lastName,department,position,email,imageURL
+John,Doe,Circulation,Circulation Librarian,john.doe@example.com,https://csc311storagechen.blob.core.windows.net/media-files/Clouddatabase64.png
+Jane,Smith,Reference,Reference Librarian,jane.smith@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsc.png
+Alice,Johnson,Technical Services,Technical Services Librarian,alice.johnson@example.com,https://csc311storagechen.blob.core.windows.net/media-files/DollarClouddatabase.png
+Michael,Brown,Special Collections,Archivist,michael.brown@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsclogo.png
+Sarah,Davis,Children's Services,Children's Librarian,sarah.davis@example.com, ,
+Emma,Lee,Circulation,Circulation Librarian,emma.lee@example.com, ,
+Mark,Taylor,Reference,Reference Librarian,mark.taylor@example.com, ,
+Olivia,Wilson,Technical Services,Technical Services Librarian,olivia.wilson@example.com, ,
+Noah,Moore,Children's Services,Children's Librarian,noah.moore@example.com, ,
+Sophia,Martinez,Special Collections,Archivist,sophia.martinez@example.com, ,

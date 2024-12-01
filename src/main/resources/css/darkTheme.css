@@ -56,10 +56,17 @@
     -fx-background-color: #424242;
 }
 
-.text_field {
+.text_field{
     -fx-pref-width: 200;
     -fx-pref-height: 30;
     -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+.message-box{
+    -fx-pref-width: 200;
+    -fx-pref-height: 50;
+    -fx-background-color: #424242;
     -fx-text-fill: white;
 }
 

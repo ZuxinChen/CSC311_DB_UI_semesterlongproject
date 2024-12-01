@@ -3,6 +3,10 @@ package dao;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import com.azure.storage.blob.models.BlobItem;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import model.BlobInfo;
 
 public class StorageUploader {
 
@@ -15,11 +19,23 @@ public class StorageUploader {
                 .buildClient();
     }
 
-    public void uploadFile(String filePath, String blobName) {
+    public BlobClient uploadFile(String filePath, String blobName) {
         BlobClient blobClient = containerClient.getBlobClient(blobName);
         blobClient.uploadFromFile(filePath);
+        return blobClient;
     }
+
+    public ObservableList<BlobInfo> listBlobInfos() {
+        ObservableList<BlobInfo> infos = FXCollections.observableArrayList();
+        for (BlobItem blobItem : containerClient.listBlobs()) {
+            String url = containerClient.getBlobClient(blobItem.getName()).getBlobUrl();
+            infos.add(new BlobInfo(blobItem.getName(),url));
+        }
+        return infos;
+    }
+
     public BlobContainerClient getContainerClient(){
         return containerClient;
     }
+
 }

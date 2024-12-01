@@ -55,13 +55,10 @@
               <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
               <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="4">
                <children>
-                  <ImageView fitHeight="200.0" fitWidth="210.0">
+                  <ImageView fitHeight="144.0" fitWidth="366.0">
                      <image>
-                        <Image url="@../images/fsc.png" />
+                        <Image url="@../images/books.png" />
                      </image>
-                     <VBox.margin>
-                        <Insets left="70.0" />
-                     </VBox.margin>
                   </ImageView>
                </children>
             </VBox>
