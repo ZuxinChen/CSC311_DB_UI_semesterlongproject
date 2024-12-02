@@ -16,114 +16,86 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SignUpController">
+<AnchorPane prefHeight="630.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SignUpController">
    <children>
-      <GridPane alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="750.0" prefWidth="1100.0" style="-fx-border-color: BLACK;">
-          <columnConstraints>
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="460.0" minWidth="10.0" prefWidth="162.0" />
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="460.0" minWidth="10.0" prefWidth="197.0" />
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="466.0" minWidth="10.0" prefWidth="190.0" />
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="666.0" minWidth="10.0" prefWidth="170.0" />
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="551.0" minWidth="10.0" prefWidth="195.0" />
-              <ColumnConstraints hgrow="SOMETIMES" maxWidth="252.0" minWidth="0.0" prefWidth="184.0" />
-          </columnConstraints>
-          <rowConstraints>
-              <RowConstraints maxHeight="129.0" minHeight="10.0" prefHeight="75.39999923706054" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="129.0" minHeight="10.0" prefHeight="64.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="129.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="250.0" minHeight="0.0" prefHeight="56.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="277.0" minHeight="10.0" prefHeight="59.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="277.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="335.1999877929687" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="335.1999877929687" minHeight="10.0" prefHeight="56.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="335.1999877929687" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="335.1999877929687" minHeight="10.0" prefHeight="114.0" vgrow="SOMETIMES" />
-              <RowConstraints maxHeight="335.1999877929687" minHeight="10.0" prefHeight="64.0" vgrow="SOMETIMES" />
-          </rowConstraints>
-          <children>
-              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="6" GridPane.rowIndex="1">
-                  <children>
-                      <Label alignment="CENTER" focusTraversable="false" prefHeight="74.0" prefWidth="1099.0" style="-fx-border-color: BLACK; -fx-background-color: Green; -fx-text-fill: white;" text="Sign Up New User Account">
-                          <font>
-                              <Font size="36.0" />
-                          </font>
-                      </Label>
-                  </children>
-              </HBox>
-              <VBox alignment="CENTER_RIGHT" fillWidth="false" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-              <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3" />
-              <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-              <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="4">
+      <VBox prefHeight="630.0" prefWidth="920.0">
+         <children>
+                <Label alignment="CENTER" focusTraversable="false" prefHeight="74.0" prefWidth="920.0" style="-fx-border-color: BLACK; -fx-background-color: green; -fx-text-fill: white;" text="Sign Up New User Account" textAlignment="CENTER" textFill="WHITE">
+                    <font>
+                        <Font size="36.0" />
+                    </font>
+                </Label>
+            <ImageView fitHeight="144.0" fitWidth="360.0">
+               <image>
+                  <Image url="@../images/books.png" />
+               </image>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="280.0" right="280.0" top="10.0" />
+               </VBox.margin>
+            </ImageView>
+              <VBox alignment="CENTER_LEFT" prefHeight="357.0" prefWidth="360.0">
                <children>
-                  <ImageView fitHeight="144.0" fitWidth="366.0">
-                     <image>
-                        <Image url="@../images/books.png" />
-                     </image>
-                  </ImageView>
-               </children>
-            </VBox>
-              <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-              <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="5" />
-              <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-              <VBox alignment="CENTER_LEFT" prefHeight="85.0" prefWidth="361.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="6">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User Name" wrappingWidth="193.30029296875">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User Name" wrappingWidth="102.30029296875">
                      <font>
                         <Font size="18.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                   </Text>
-                  <TextField fx:id="userName" promptText="email_id@domain.edu" />
-               </children>
-            </VBox>
-              <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-              <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="7">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Password">
+                  <TextField fx:id="userName" prefHeight="30.0" prefWidth="360.0" promptText="email_id@domain.edu">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Password" wrappingWidth="97.66796875">
                      <font>
                         <Font size="18.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                   </Text>
-                  <TextField fx:id="password" />
-               </children>
-            </VBox>
-              <VBox alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-              <VBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="8">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Privileges">
+                  <TextField fx:id="password" prefHeight="30.0" prefWidth="360.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Privileges" wrappingWidth="88.9755859375">
                      <font>
                         <Font size="18.0" />
                      </font>
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
                   </Text>
-                  <ComboBox fx:id="privileges" prefHeight="30.0" prefWidth="360.0" />
-               </children>
-            </VBox>
-              <VBox alignment="TOP_CENTER" prefHeight="63.0" prefWidth="360.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="9">
-                  <children>
-                      <Button fx:id="newAccountBtn" mnemonicParsing="false" onAction="#createNewAccount" prefHeight="43.0" prefWidth="199.0" style="-fx-background-color: red; -fx-border-color: BLACK;" text="Create New Account" textAlignment="CENTER" textFill="WHITE">
+                  <ComboBox fx:id="privileges" prefHeight="30.0" prefWidth="360.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </ComboBox>
+                      <Button fx:id="newAccountBtn" mnemonicParsing="false" onAction="#createNewAccount" prefHeight="40.0" prefWidth="305.0" style="-fx-background-color: red; -fx-border-color: BLACK;" text="Create New Account" textAlignment="CENTER" textFill="WHITE">
                           <VBox.margin>
-                              <Insets bottom="5.0" top="5.0" />
+                              <Insets bottom="5.0" left="40.0" right="40.0" top="20.0" />
                           </VBox.margin>
                           <font>
                               <Font name="System Bold" size="15.0" />
                           </font>
                       </Button>
-                      <Button fx:id="goBackBtn" alignment="CENTER" mnemonicParsing="false" onAction="#goBack" prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: green; -fx-border-color: BLACK;" text=" Login" textFill="WHITE">
+                      <Button fx:id="goBackBtn" alignment="CENTER" mnemonicParsing="false" onAction="#goBack" prefHeight="40.0" prefWidth="294.0" style="-fx-background-color: green; -fx-border-color: BLACK;" text=" Login" textFill="WHITE">
                           <font>
                               <Font name="System Bold" size="14.0" />
                           </font>
                           <VBox.margin>
-                              <Insets bottom="5.0" top="5.0" />
+                              <Insets bottom="5.0" left="40.0" right="40.0" top="5.0" />
                           </VBox.margin>
                       </Button>
-                  </children>
-              </VBox>
-              <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="7" GridPane.rowSpan="2" />
-              <VBox alignment="BOTTOM_CENTER" prefHeight="280.0" prefWidth="298.0" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="9">
-                  <opaqueInsets>
-                      <Insets />
-                  </opaqueInsets>
-              </VBox>
-          </children>
-      </GridPane>
+               </children>
+               <VBox.margin>
+                  <Insets left="280.0" right="280.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

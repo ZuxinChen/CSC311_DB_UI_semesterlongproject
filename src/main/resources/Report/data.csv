@@ -1,0 +1,11 @@
+firstName,lastName,department,position,email,imageURL
+John,Doe,Circulation,Circulation Librarian,john.doe@example.com,https://csc311storagechen.blob.core.windows.net/media-files/Clouddatabase64.png
+Jane,Smith,Reference,Reference Librarian,jane.smith@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsc.png
+Alice,Johnson,Technical Services,Technical Services Librarian,alice.johnson@example.com,https://csc311storagechen.blob.core.windows.net/media-files/DollarClouddatabase.png
+Michael,Brown,Special Collections,Archivist,michael.brown@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsclogo.png
+Sarah,Davis,Children's Services,Children's Librarian,sarah.davis@example.com," "
+Emma,Lee,Circulation,Circulation Librarian,emma.lee@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsclogo.png
+Mark,Taylor,Reference,Reference Librarian,mark.taylor@example.com,https://csc311storagechen.blob.core.windows.net/media-files/Clouddatabase64.png
+Olivia,Wilson,Technical Services,Technical Services Librarian,olivia.wilson@example.com,https://csc311storagechen.blob.core.windows.net/media-files/fsc.png
+Noah,Moore,Children's Services,Children's Librarian,noah.moore@example.com,https://csc311storagechen.blob.core.windows.net/media-files/Clouddatabase64.png
+Sophia,Martinez,Special Collections,Archivist,sophia.martinez@example.com,

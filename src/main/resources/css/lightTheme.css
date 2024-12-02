@@ -51,7 +51,7 @@
     -fx-background-color: #79dc05;
 }
 
-.combo-box {
+.combo_box {
     -fx-pref-width: 200;
     -fx-pref-height: 30;
 }

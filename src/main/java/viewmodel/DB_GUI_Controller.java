@@ -28,6 +28,12 @@ import model.BlobInfo;
 import model.Person;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import service.MyLogger;
 import service.UserSession;
 
@@ -35,11 +41,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 public class DB_GUI_Controller implements Initializable {
@@ -141,22 +143,22 @@ public class DB_GUI_Controller implements Initializable {
     //setting privileges by UserSession in initialize
     private void setUserSession(){
         UserSession userSession = UserSession.getInstance();
-        // if(userSession!= null) {
-        //String privileges = userSession.getPrivileges();
-        String privileges = "High";
-        switch (privileges) {
-            case "None" -> {
-                clearBtn.setVisible(false);
-                deleteBtn.setVisible(false);
-                addBtn.setVisible(false);
-                editBtn.setVisible(false);
-                tv.setEditable(false);
-            }
-            case "Low" -> deleteBtn.setVisible(false);
+        if(userSession!= null) {
+            String privileges = userSession.getPrivileges();
+            //String privileges = "High";
+            switch (privileges) {
+                case "None" -> {
+                    clearBtn.setVisible(false);
+                    deleteBtn.setVisible(false);
+                    addBtn.setVisible(false);
+                    editBtn.setVisible(false);
+                    tv.setEditable(false);
+                }
+                case "Low" -> deleteBtn.setVisible(false);
 
-            case "High" -> tv.setOnKeyPressed(this::handleKeyPress);
+                case "High" -> tv.setOnKeyPressed(this::handleKeyPress);
+            }
         }
-        // }
     }
 
     /***************shortcut***********************/
@@ -194,18 +196,14 @@ public class DB_GUI_Controller implements Initializable {
 
     /*******************CSV file************************/
     // Method to trigger the importing of a CSV file.
-    @FXML
-    void ImportCSV() {
-        fileReader();
-    }
-    // Method to trigger the exporting of data to a CSV file.
+
     @FXML
     void ExportCSV() {
-        fileWriter();
+        CSVWriter();
     }
     // Method to write data to a CSV file.
-    private void fileWriter() {
-        String CSV_FILE_PATH = "./src/main/resources/CSV/data.csv";
+    private void CSVWriter() {
+        String CSV_FILE_PATH = "./src/main/resources/Report/data.csv";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH));
              CSVPrinter csvPrinter = new CSVPrinter(writer,
                      CSVFormat.DEFAULT.withHeader("firstName", "lastName",
@@ -222,11 +220,17 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
     // Method to read data from a CSV file using a file chooser dialog.
-    private void fileReader() {
+
+    @FXML
+    void ImportCSV() {
+        CSVReader();
+    }
+    // Method to trigger the exporting of data to a CSV file.
+    private void CSVReader() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
 
-        File initialDirectory = new File("./src/main/resources/CSV");
+        File initialDirectory = new File("./src/main/resources/Report");
         if (initialDirectory.exists()) {
             fileChooser.setInitialDirectory(initialDirectory);
         }
@@ -272,6 +276,73 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    @FXML
+    void GenerateReport() {
+        PDFWriter();
+    }
+    // Method to generate a PDF report
+    private void PDFWriter(){
+        String PDF_FILE_PATH = "./src/main/resources/Report/Report.pdf";
+        Map<String,List<Person>> groupByPosition = new HashMap<>();
+
+        for(Person p: data){
+            String position = p.getPosition();
+            groupByPosition.putIfAbsent(position,new ArrayList<>());
+            groupByPosition.get(position).add(p);
+        }
+
+        PDDocument document = new PDDocument();
+        try {
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            PDPageContentStream contentStream = getPdPageContentStream(document, page, groupByPosition);
+            contentStream.close();
+
+            document.save(PDF_FILE_PATH);
+            document.close();
+            printMessage("The PDF report was generated successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+            printMessage("The PDF report was generated fail");
+        }
+
+
+    }
+    //method to setting page for pdf document
+    private static PDPageContentStream getPdPageContentStream(PDDocument document, PDPage page, Map<String, List<Person>> groupByPosition) throws IOException {
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+        contentStream.beginText();
+        contentStream.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 12);
+        contentStream.newLineAtOffset(25, page.getMediaBox().getHeight() - 25);
+
+        for (Map.Entry<String, List<Person>> entry : groupByPosition.entrySet()) {
+            String position = entry.getKey();
+            List<Person> persons = entry.getValue();
+
+            // Add position
+            contentStream.showText("Position: " + position);
+            contentStream.newLineAtOffset(0, -15);
+
+            // Add the number of people
+            contentStream.showText("Number of People: " + persons.size());
+            contentStream.newLineAtOffset(0, -15);
+
+            // Add person
+            contentStream.showText("Person:");
+            contentStream.newLineAtOffset(0, -15);
+
+            for (Person p : persons) {
+                contentStream.showText("  "+p.getFirstName()+","+p.getLastName());
+                contentStream.newLineAtOffset(0, -15);
+            }
+            // add space
+            contentStream.newLineAtOffset(0, -10);
+        }
+
+        contentStream.endText();
+        return contentStream;
+    }
 
     /************ table view select*********/
     @FXML
@@ -518,7 +589,7 @@ public class DB_GUI_Controller implements Initializable {
     protected void logOut() {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/login.fxml")));
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root,920, 630);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).getFile());
             Stage window = (Stage) menuBar.getScene().getWindow();
             window.setScene(scene);
@@ -654,7 +725,7 @@ public class DB_GUI_Controller implements Initializable {
         };
     }
 
-    public void lightTheme(ActionEvent actionEvent) {
+    public void lightTheme() {
         try {
             Scene scene = menuBar.getScene();
             Stage stage = (Stage) scene.getWindow();
@@ -668,7 +739,7 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-    public void darkTheme(ActionEvent actionEvent) {
+    public void darkTheme() {
         try {
             Stage stage = (Stage) menuBar.getScene().getWindow();
             Scene scene = stage.getScene();

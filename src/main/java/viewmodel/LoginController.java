@@ -82,6 +82,8 @@ public class LoginController {
             }
         }else{
             showAlert("There is no account, please register first");
+            usernameTextField.setText("");
+            passwordField.setText("");
         }
 
     }
@@ -89,7 +91,7 @@ public class LoginController {
     private void loginToInterface_gui(ActionEvent actionEvent){
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/db_interface_gui.fxml")));
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root,920, 630);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).toExternalForm());
             Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);
@@ -108,7 +110,7 @@ public class LoginController {
     public void signUp(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/signUp.fxml")));
-            Scene scene = new Scene(root);
+            Scene scene = new Scene(root,920, 630);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/lightTheme.css")).toExternalForm());
             Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);

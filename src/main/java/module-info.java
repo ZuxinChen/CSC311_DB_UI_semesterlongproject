@@ -7,6 +7,7 @@ module com.example.csc311_db_ui_semesterlongproject {
     requires org.slf4j;
     requires java.desktop;
     requires java.prefs;
+    requires org.apache.pdfbox;
 
 
     opens viewmodel;
