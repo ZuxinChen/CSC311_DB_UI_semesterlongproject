@@ -16,21 +16,21 @@ It aims to provide an intuitive and efficient user interface for users to manage
 
 ## Instructions
 
-- **Shortcut keys**:
+### **Shortcut keys**:
 - `Ctrl + E`: Edit the current row.
 - `Ctrl + R`: Clear all.
 - `Ctrl + D`: Delete the current row
 - `Ctrl + C`: Copy the data of the current cell
 
-- **Row editing**:
+### **Row editing**:
 - Double-click a table cell to enter edit mode.
 - Double-click a blank space to add a new row
 
-- **Image upload and replacement**:
+### **Image upload and replacement**:
 - Click the avatar in the table to select an image file.
 - After selecting one, the image will be automatically uploaded and replaced.
 
-- **Permission management**:
+### **Permission management**:
 - High permissions can use all functions, including shortcuts, data addition, deletion, and modification.
 - Low permissions can only use some functions, including data addition and modification.
 - No permissions can modify data, only view data.
